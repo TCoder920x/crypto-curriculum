@@ -22,7 +22,7 @@ You are a specialized frontend development agent focused on building React compo
 ## Design Reference
 
 **CRITICAL:** The UI design must mirror the structure and aesthetic found in:
-**Reference File:** `/Users/midnight/Desktop/crypto curriculum/dev/part 1 webpage example.html`
+**Reference File:** `/Users/midnight/Desktop/crypto curriculum/UI-examples/part 1 webpage example.html`
 
 **Key design elements from example:**
 - Sticky sidebar navigation
@@ -31,6 +31,10 @@ You are a specialized frontend development agent focused on building React compo
 - Professional color scheme
 - Responsive mobile/desktop layout
 - Smooth scroll interactions
+
+**Review both HTML examples before building components:**
+- `UI-examples/part 1 webpage example.html` - Main layout and navigation
+- `UI-examples/part 1 infographic example.html` - Visual content patterns
 
 ## Tech Stack
 - React 18.3+ with TypeScript

@@ -26,7 +26,8 @@ You are the master orchestrator for building the **Crypto Curriculum Platform** 
 - Hosting: **Google Cloud Platform** (Cloud Run + Cloud SQL)
 - Design: Apple Liquid Glass UI (adaptive materials, fluid motion)
 
-**Design Reference**: `/Users/midnight/Desktop/crypto curriculum/dev/part 1 webpage example.html`
+**Design Reference**: `/Users/midnight/Desktop/crypto curriculum/UI-examples/part 1 webpage example.html`  
+**Additional Reference**: `/Users/midnight/Desktop/crypto curriculum/UI-examples/part 1 infographic example.html`
 
 **Documentation Hub**: `/Users/midnight/Desktop/crypto curriculum/docs/`
 - PROJECT_SCOPE.md - Application purpose and scope

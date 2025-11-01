@@ -98,14 +98,24 @@ The **Crypto Curriculum Platform** is a **Learning Management System (LMS)** des
 ## 🎨 Design Reference
 
 **UI Design:** The platform's visual design should mirror the structure and aesthetic of:
-- **Reference File:** `dev/part 1 webpage example.html`
+- **Primary Reference:** `UI-examples/part 1 webpage example.html` ← **MIRROR THIS LAYOUT**
+- **Additional Reference:** `UI-examples/part 1 infographic example.html`
 - **Design System:** Apple Liquid Glass UI with adaptive materials
-- **Key Elements:**
-  - Sticky sidebar navigation
-  - Card-based content layout
-  - Clean, modern "Learning Hub" aesthetic
-  - Smooth transitions and fluid motion
-  - Translucent glass surfaces with backdrop blur
+
+**Key Elements from HTML Example:**
+- Sticky sidebar navigation (responsive mobile/desktop)
+- Card-based content layout
+- Clean, modern "Learning Hub" aesthetic
+- Professional color scheme (#0d6efd primary)
+- Smooth scroll interactions
+- Responsive design patterns
+
+**Liquid Glass Enhancements:**
+- Translucent glass surfaces with backdrop blur
+- Adaptive opacity on scroll
+- Fluid motion with spring physics (Framer Motion)
+- Lensing effects on hover
+- Concentric geometry (rounded corners: 12px, 16px, 24px)
 
 ---
 

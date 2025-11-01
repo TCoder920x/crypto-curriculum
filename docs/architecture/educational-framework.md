@@ -31,29 +31,31 @@ This document outlines the pedagogical considerations and technical requirements
 - View curriculum content
 - Complete lessons and assessments
 - Track personal progress
-- Configure AI trading bot (Module 17)
 - View own grades and feedback
-- Share code with instructors/peers (opt-in)
 - Participate in discussion forums
 - View cohort leaderboard (if enabled)
+- Use AI learning assistant
 
 **Cannot:**
-- View other students' submissions (unless peer review)
 - Modify curriculum content
 - Access admin features
 - Change own grades
+- View other students' personal information
+
+**Note:** Students code in external IDEs (Cursor, VS Code). Projects are not submitted through the platform. Instructors review code externally (via GitHub, email, or in-person).
 
 ### Instructor
 **Can:**
 - View assigned students' progress
-- Grade assessments (short answer, coding tasks)
+- Grade assessments (short answer questions in platform)
 - Provide feedback and comments
 - View class analytics and trends
 - Create cohorts and manage enrollment
 - Set assignment deadlines (optional)
 - Moderate discussions
 - Export student reports
-- View all student code submissions
+
+**Note:** Coding assessments (Modules 11-17) are graded externally. Students show instructors their code via GitHub, email, or in-person. Instructors grade manually outside the platform.
 
 **Cannot:**
 - Modify core curriculum (unless also admin)
@@ -98,8 +100,8 @@ This document outlines the pedagogical considerations and technical requirements
 4. **Engagement Metrics**
    - Lessons completed vs. total
    - Questions asked in forum
-   - Peer reviews completed
-   - Code submissions
+   - Forum replies provided
+   - Time spent on platform
 
 **Overall Progress:**
 - Modules completed by track
@@ -181,14 +183,14 @@ Cohort: "Fall 2025 - Beginners"
 **Assessment Review Queue:**
 ```
 Pending Reviews: 15
-├── Short Answer Questions: 8
-├── Coding Tasks: 5
-└── Practical Assignments: 2
+└── Short Answer Questions: 15
 
 Priority:
-1. Bob Johnson - Module 11 Coding Task (submitted 3 days ago)
+1. Bob Johnson - Module 11 Short Answer (submitted 3 days ago)
 2. Alice Smith - Module 15 Short Answer (submitted 1 day ago)
 ```
+
+**Note:** Coding projects are reviewed externally. Only short-answer assessment questions are graded in the platform.
 
 **Grading Interface:**
 - View student submission
@@ -227,71 +229,52 @@ Priority:
 
 ---
 
-## 💻 Technical Development Outside App
+## 💻 Technical Development Outside Platform
 
-Since students will do coding in external IDEs (Cursor, VS Code), the platform needs:
+**IMPORTANT:** This is a Learning Management System (LMS) for content delivery and assessment. Students perform ALL coding externally.
 
-### Code Submission System
+### Student Coding Workflow
 
-**Options:**
-
-**Option 1: GitHub Integration (Recommended)**
-- Students create GitHub repos for their projects
-- Submit GitHub repo URL
-- Instructors clone and review locally
-- PR-based feedback system
-- Tracks version history automatically
-
-**Option 2: Code Upload**
-- Upload .zip or individual files
-- Platform stores code
-- Built-in code viewer with syntax highlighting
-- Download for local testing
-
-**Option 3: Hybrid**
-- GitHub for major projects (Module 14-17)
-- Direct upload for small exercises (Module 11-13)
-
-**Recommendation:** Use GitHub integration with fallback to direct upload
-
-### Code Review Features
-
-**What Instructors Need:**
-1. **Code Viewer** - Syntax-highlighted display
-2. **Inline Comments** - Comment on specific lines
-3. **Test Results** - Run basic tests (if automated)
-4. **Plagiarism Detection** - Basic similarity checking
-5. **Version History** - See student iterations
-6. **Download/Clone** - Test locally
-
-**What Students Need:**
-1. **Submission Portal** - Easy upload or GitHub link
-2. **Feedback View** - See instructor comments
-3. **Revision Tracking** - Submit multiple versions
-4. **Peer Review** - View classmates' code (opt-in, anonymized)
-5. **Code Portfolio** - Showcase best work
-
-### Project Submission Workflow
+**For Modules 11-17 (Coding Modules):**
 
 ```
-Student completes project in Cursor
-    ↓
-Push to GitHub (or export files)
-    ↓
-Submit GitHub URL (or upload files) to platform
-    ↓
-Instructor receives notification
-    ↓
-Instructor reviews code (in platform or clones locally)
-    ↓
-Instructor provides feedback and grade
-    ↓
-Student views feedback
-    ↓
-Student makes revisions (if needed)
-    ↓
-Resubmit for re-grading
+1. Student reads lesson content in platform
+   ↓
+2. Student completes concept quiz in platform (auto-graded)
+   ↓
+3. Student opens Cursor/VS Code on their own computer
+   ↓
+4. Student writes code following curriculum guide
+   ↓
+5. Student tests code locally
+   ↓
+6. Student shows code to instructor:
+   - Via GitHub (student shares repo URL)
+   - Via email
+   - In person/Zoom screen share
+   ↓
+7. Instructor reviews code externally
+   ↓
+8. Instructor provides feedback and grade outside platform
+   ↓
+9. Student answers short-answer assessment questions in platform
+   (graded by instructor in platform)
 ```
+
+**Platform Role:**
+- ✅ Provides curriculum content and lessons
+- ✅ Delivers concept quizzes (auto-graded)
+- ✅ Provides short-answer questions (instructor-graded in platform)
+- ✅ Tracks progress and completion
+- ❌ Does NOT store or execute code
+- ❌ Does NOT provide code review tools
+- ❌ Does NOT integrate with GitHub
+
+**Instructor Role:**
+- Reviews code externally (GitHub, email, or in-person)
+- Provides feedback outside platform
+- Grades coding projects manually
+- Enters final grades into platform for assessment questions
 
 ---
 
@@ -510,34 +493,14 @@ Forums
 - Simple blockchain implementation
 - AI trading bot
 
-### Portfolio Integration
+### Student Portfolio (External)
 
-**Features:**
-1. **Project Showcase**
-   - GitHub repo link
-   - Live demo link (if applicable)
-   - Screenshots/video walkthrough
-   - Project description
-   - Tech stack used
-
-2. **Code Submission**
-   - Submit GitHub repo URL
-   - Platform clones and displays
-   - Instructor can comment on code
-   - Automated checks (linting, tests if included)
-
-3. **Peer Review**
-   - Anonymized code sharing
-   - Students review 2-3 peers' code
-   - Rubric-based review
-   - Comments and suggestions
-   - Counts toward engagement score
-
-4. **Portfolio Export**
-   - Generate portfolio website
-   - Resume-ready project showcase
-   - PDF export of achievements
-   - Shareable link for employers
+**Portfolio Management:**
+- All projects are hosted externally (GitHub, personal websites)
+- Students can share GitHub links in forum discussions
+- Platform tracks completion and achievements
+- Platform can export completion certificates
+- Portfolio creation is done by students externally
 
 ---
 
@@ -559,37 +522,22 @@ Forums
 ### Manual Grading
 
 **Types:**
-- Short answer questions
-- Essay questions
-- Code review (Modules 11-17)
-- Practical projects
+- Short answer questions (graded in platform)
+- Essay questions (graded in platform)
 
-**Grading Rubrics:**
-```
-Coding Task Rubric (Module 12: Smart Contract)
-├── Functionality (40 points)
-│   ├── Contract compiles: 10 pts
-│   ├── Required functions implemented: 15 pts
-│   └── Functions work correctly: 15 pts
-├── Code Quality (30 points)
-│   ├── Follows best practices: 10 pts
-│   ├── Proper comments: 10 pts
-│   └── Gas optimization: 10 pts
-├── Security (20 points)
-│   ├── No critical vulnerabilities: 15 pts
-│   └── Proper access control: 5 pts
-└── Documentation (10 points)
-    └── README with setup instructions: 10 pts
+**Note:** For coding modules (11-17), students answer short-answer questions about concepts in the platform. Actual code projects are reviewed and graded externally by instructors.
 
-Total: 100 points
-```
+**Grading Interface:**
+- View student's short-answer submission
+- Reference answer key
+- Provide written feedback
+- Award partial credit
+- Bulk grading tools for efficiency
 
-**Instructor Tools:**
-- Pre-defined rubrics per assignment
-- Checkbox-style grading
-- Auto-calculate final score
-- Rich text feedback
-- Code annotation (inline comments)
+**External Code Review:**
+- Instructors review student code outside platform (GitHub, email, or in-person)
+- Grading rubrics used externally
+- Final grades entered into platform for assessment questions
 
 ### Feedback System
 
@@ -626,23 +574,16 @@ Suggestions for Improvement:
 
 ## 🤝 Peer Learning Features
 
-### Peer Code Review
+### Discussion Forums (Peer Learning)
 
-**Process:**
-1. Student completes coding assignment
-2. Submits code (anonymized)
-3. Platform assigns 2-3 peer reviewers
-4. Peers review using rubric
-5. Student receives peer feedback
-6. Instructor reviews both submission and peer reviews
-7. Final grade from instructor
+**Students can:**
+- Ask questions about curriculum concepts
+- Share learning experiences
+- Help peers understand difficult topics
+- Showcase completed projects (via GitHub links or descriptions)
+- Discuss coding challenges (conceptual, not code review)
 
-**Benefits:**
-- Learn by reviewing others' code
-- See different approaches to same problem
-- Build critical thinking
-- Reduce instructor grading load
-- Foster collaborative learning
+**Note:** Peer code review is not conducted in the platform. Students can discuss coding concepts in forums, but actual code review happens externally if desired.
 
 ### Study Groups
 
@@ -659,15 +600,14 @@ Suggestions for Improvement:
 - Collaborative note-taking
 - Video call integration (external)
 
-### Code Sharing & Showcases
+### Project Showcases (External)
 
-**Module 17 Trading Bot Showcase:**
-- Students can opt-in to share their bot
-- View others' bot configurations
-- See backtest results
-- Discussion threads per bot
-- "Featured Bots" - Instructor highlights
-- Learn from different approaches
+**Module 17 AI Trading Bot:**
+- Students build bots externally using curriculum guide
+- Students can share GitHub links in forum discussions
+- Instructors can highlight interesting projects in forum announcements
+- Discussion threads about bot strategies and approaches
+- All actual code review and execution happens outside platform
 
 ---
 
@@ -745,35 +685,7 @@ CREATE TABLE cohort_members (
 );
 ```
 
-**Code Submissions Table:**
-```sql
-CREATE TABLE code_submissions (
-    id UUID PRIMARY KEY,
-    user_id UUID REFERENCES users(id),
-    assignment_id UUID REFERENCES assessments(id),
-    github_url VARCHAR(500),
-    file_uploads JSONB,  -- If not using GitHub
-    status VARCHAR(20) DEFAULT 'submitted',
-    grade INTEGER,
-    instructor_feedback TEXT,
-    rubric_scores JSONB,
-    submitted_at TIMESTAMP,
-    graded_at TIMESTAMP,
-    graded_by UUID REFERENCES users(id)
-);
-```
-
-**Peer Reviews Table:**
-```sql
-CREATE TABLE peer_reviews (
-    id UUID PRIMARY KEY,
-    submission_id UUID REFERENCES code_submissions(id),
-    reviewer_id UUID REFERENCES users(id),
-    rubric_scores JSONB,
-    comments TEXT,
-    submitted_at TIMESTAMP
-);
-```
+**Note:** Code submission and peer review tables are NOT part of the platform schema. Students code externally, and instructors review code outside the platform. Only assessment questions (short answer) are graded within the platform.
 
 **Discussion Forums Table:**
 ```sql
@@ -815,29 +727,28 @@ CREATE TABLE user_achievements (
 
 ### Phase 1: MVP (Must Have)
 1. ✅ Student progress tracking
-2. ✅ Assessment system with auto-grading
-3. ✅ Instructor grading interface
+2. ✅ Assessment system with auto-grading (MC, T/F)
+3. ✅ Manual grading interface (short answer questions)
 4. ✅ Basic cohort management
 5. ✅ Student dashboard
 6. ✅ Instructor dashboard
-7. ✅ Code submission (GitHub URL)
+7. ✅ Discussion forums
 
 ### Phase 2: Enhanced (Should Have)
-8. Discussion forums per module
-9. AI assistant integration
-10. Detailed analytics
-11. Peer review system
-12. Achievement/badge system
-13. At-risk student detection
+8. AI learning assistant integration
+9. Detailed analytics
+10. Achievement/badge system
+11. At-risk student detection
+12. Notification system
+13. Learning resources library
 
 ### Phase 3: Advanced (Nice to Have)
-14. Study groups
-15. Office hours booking
-16. Content versioning
-17. Portfolio export
-18. Video integration
-19. Mobile app
-20. Gamification features
+14. Advanced analytics and reporting
+15. Content versioning
+16. Video integration
+17. Mobile responsive optimization
+18. Enhanced gamification
+19. Export capabilities (certificates, reports)
 
 ---
 

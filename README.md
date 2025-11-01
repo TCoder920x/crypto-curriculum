@@ -87,7 +87,6 @@ This project uses a specialized AI agent framework in Cursor for efficient devel
 crypto-curriculum/
 ├── .gitignore                    # Git ignore rules (API keys, secrets, etc.)
 ├── README.md                     # This file - Project overview
-├── DEVELOPMENT_QUICKSTART.md     # Quick start guide for developers
 │
 ├── curriculum/                   # 📚 All curriculum content
 │   ├── code-examples/           # Reference code for teaching
@@ -142,8 +141,8 @@ crypto-curriculum/
 │       ├── databaseSchemaAgent.mdc
 │       └── tradingBotAgent.mdc
 │
-├── dev/                          # 🎨 Design examples & prototypes
-│   ├── part 1 webpage example.html
+├── UI-examples/                  # 🎨 Design reference for frontend
+│   ├── part 1 webpage example.html (DESIGN REFERENCE - mirror this)
 │   └── part 1 infographic example.html
 │
 ├── docs/                         # 📖 Project documentation
@@ -180,10 +179,11 @@ crypto-curriculum/
 | Teaching code examples | `curriculum/code-examples/` | Python examples for Module 17 |
 | Application source code | `app/frontend/` or `app/backend/` | React components, API routes |
 | Component-specific docs | Component's `README.md` | `app/frontend/README.md` |
-| Project-wide documentation | `docs/` | API specs, architecture diagrams |
+| Project-wide documentation | `docs/` | API specs, architecture, checklists |
+| Deployment guides | `docs/deployment/` | Google Cloud setup |
 | Automation scripts | `scripts/` | Setup, deployment, database scripts |
-| AI agent configurations | `cursor/` | Agent rule files |
-| Design references | `dev/` | HTML examples, mockups |
+| AI agent configurations | `cursor/rules/` | Agent rule files (.mdc) |
+| UI design references | `UI-examples/` | **HTML examples to mirror** |
 
 **Note:** READMEs can stay in their relevant directories (e.g., `app/frontend/README.md`), but comprehensive documentation belongs in `docs/`.
 
@@ -319,7 +319,7 @@ docker-compose logs -f
 
 ### 📋 Phase 2: Development - READY TO START
 
-**Comprehensive Development Roadmap:** See [Development Roadmap](docs/guides/development-roadmap.md) for detailed 12-week plan
+**Complete Development Checklist:** See [Development Checklist](docs/DEVELOPMENT_CHECKLIST.md) for detailed 20-week development plan
 
 #### Foundation (Weeks 1-2)
 - [ ] Initialize frontend (Vite + React + MUI + Liquid Glass UI + Framer Motion)
@@ -391,7 +391,7 @@ docker-compose logs -f
 ## 📚 Documentation Quick Links
 
 ### Getting Started
-- [Development Quickstart](DEVELOPMENT_QUICKSTART.md) - Step-by-step guide to start developing
+- [Project Scope](docs/PROJECT_SCOPE.md) - Application purpose and scope
 - [Development Workflow](docs/guides/development-workflow.md) - Git workflow and best practices
 
 ### Architecture & Design
@@ -399,7 +399,7 @@ docker-compose logs -f
 - [Educational Framework](docs/architecture/educational-framework.md) - Multi-instructor/student pedagogy and features
 - [Component Hierarchy](docs/architecture/component-hierarchy.md) - React component structure
 - [API Endpoints](docs/api/endpoints.md) - Complete API reference
-- [Development Roadmap](docs/guides/development-roadmap.md) - 12-week development plan
+- [Development Checklist](docs/DEVELOPMENT_CHECKLIST.md) - Complete 20-week development plan
 
 ### Configuration
 - [Frontend .env Template](docs/templates/frontend.env.example) - Frontend environment variables
