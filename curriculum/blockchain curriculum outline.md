@@ -1,3 +1,85 @@
+# Blockchain & Cryptocurrency Curriculum
+
+**GitHub Repository:** https://github.com/TCoder920/crypto-curriculum
+
+---
+
+# How to Use This Curriculum
+
+## Using AI as Your Learning Assistant
+
+Throughout this curriculum, you are **strongly encouraged** to use AI tools as learning assistants to enhance your understanding:
+
+### Recommended AI Tools
+- **ChatGPT** (OpenAI) - https://chat.openai.com
+- **Google Gemini** - https://gemini.google.com
+- **Claude** (Anthropic) - https://claude.ai
+
+### When to Use AI Tools
+
+**✅ DO Use AI For:**
+- Explaining concepts you don't understand in simpler terms
+- Getting immediate answers to clarifying questions
+- Generating additional examples or analogies
+- Breaking down complex topics into smaller pieces
+- Checking your understanding with practice questions
+- Debugging code errors
+- Exploring related topics mentioned in lessons
+
+**❌ DON'T Use AI For:**
+- Copying answers to assessments without understanding
+- Replacing the curriculum content entirely
+- Making trading decisions without your own research
+- Trusting financial advice blindly
+- Avoiding the learning process
+
+### How to Ask Effective Questions
+
+**Poor Question:**
+> "What is blockchain?"
+
+**Better Question:**
+> "I'm learning about blockchain and the curriculum says it's a 'distributed ledger.' Can you explain what 'distributed' means in this context and give me a real-world analogy?"
+
+**Best Question:**
+> "I'm studying Module 1 of a blockchain curriculum. The lesson explains that Proof-of-Work uses mining and Proof-of-Stake uses validators, but I don't understand WHY Proof-of-Stake is more energy efficient. Can you explain the energy difference in simple terms, like I'm explaining it to a friend?"
+
+### Example Prompts for Learning
+
+**Understanding Concepts:**
+- "Can you explain [concept] using a different analogy than [curriculum's analogy]?"
+- "What's the difference between [concept A] and [concept B]?"
+- "I don't understand this part: [paste confusing section]. Can you break it down?"
+
+**Practice and Testing:**
+- "Quiz me on [topic] with 5 questions"
+- "Is my understanding correct? [explain what you think you learned]"
+- "Give me a real-world scenario where I would use [concept]"
+
+**Code Help (Developer Track):**
+- "I'm getting this error: [error message]. What does it mean?"
+- "Can you explain what this Solidity code does line by line: [paste code]"
+- "How would I modify this code to [your goal]?"
+
+### Important Boundaries
+
+⚠️ **Remember:**
+- AI tools can make mistakes or provide outdated information
+- Always verify technical information with official documentation
+- For financial decisions, consult multiple sources and professionals
+- AI is a learning aid, not a replacement for understanding
+- The curriculum is designed to build foundational knowledge - don't skip ahead
+
+### Collaborative Learning
+
+For the technical portions (Parts 3 & 4), you'll be encouraged to:
+- Share your code with classmates for review
+- Collaborate on projects and debugging
+- Discuss different approaches to problems
+- Learn from each other's implementations
+
+---
+
 # Part 1: The "User" Track (Foundations)
 
 *Goal: To create an informed, safe, and competent user of Web3.*
