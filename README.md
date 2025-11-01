@@ -324,7 +324,7 @@ docker-compose logs -f
 #### Foundation (Weeks 1-2)
 - [ ] Initialize frontend (Vite + React + MUI + Liquid Glass UI + Framer Motion)
 - [ ] Initialize backend (FastAPI + PostgreSQL + SQLAlchemy)
-- [ ] Implement complete database schema (17 tables)
+- [ ] Implement complete database schema (12 tables)
 - [ ] Build JWT authentication with role-based access
 - [ ] Set up development environment
 
@@ -395,7 +395,7 @@ docker-compose logs -f
 - [Development Workflow](docs/guides/development-workflow.md) - Git workflow and best practices
 
 ### Architecture & Design
-- [Database Schema](docs/architecture/database-schema.md) - Complete database design (17 tables) and ERD
+- [Database Schema](docs/architecture/database-schema.md) - Complete database design (12 tables) and ERD
 - [Educational Framework](docs/architecture/educational-framework.md) - Multi-instructor/student pedagogy and features
 - [Component Hierarchy](docs/architecture/component-hierarchy.md) - React component structure
 - [API Endpoints](docs/api/endpoints.md) - Complete API reference
