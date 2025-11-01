@@ -11,18 +11,19 @@ This document defines the PostgreSQL database schema for the Crypto Curriculum P
                  │
     ┌────────────┼────────────┬──────────────┐
     │            │            │              │
-UserProgress  QuizAttempt  CodeSubmission  Achievement
-    │            │            │
-  Module      Assessment     │
-    │            │        PeerReview
-  Lesson         │
-                 │
-           ForumPost
-               │
-          (self-referencing for replies)
+UserProgress  QuizAttempt  Achievement  ForumPost
+    │            │                           │
+  Module      Assessment                (replies)
+    │
+  Lesson
 
-User ──< BotConfiguration >── TradingStrategy
+LearningResource → Module
+
+Note: AI Trading Bot configuration (BotConfiguration, TradingStrategy) 
+is content-only for Module 17 - no actual bot execution in platform.
 ```
+
+**Total Tables:** 12 core tables (simplified LMS scope)
 
 ## Core Entities
 
@@ -207,58 +208,7 @@ CREATE INDEX idx_attempts_date ON quiz_attempts(attempted_at);
 
 ---
 
-### Bot Configurations Table
-Stores AI trading bot configurations for Module 17.
-
-```sql
-CREATE TABLE bot_configurations (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    name VARCHAR(100) NOT NULL,
-    llm_provider VARCHAR(50) NOT NULL,  -- 'openai', 'anthropic', 'ollama'
-    llm_model VARCHAR(100) NOT NULL,
-    is_active BOOLEAN DEFAULT false,
-    is_paper_trading BOOLEAN DEFAULT true,
-    max_position_size_percent DECIMAL(5,2) DEFAULT 10.00,
-    stop_loss_percent DECIMAL(5,2) DEFAULT 5.00,
-    config_json JSONB,  -- Full bot configuration
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE INDEX idx_bot_user ON bot_configurations(user_id);
-CREATE INDEX idx_bot_active ON bot_configurations(is_active);
-```
-
-**Fields:**
-- `llm_provider` - Which LLM to use
-- `is_paper_trading` - Safety flag (true = simulation only)
-- `max_position_size_percent` - Risk management setting
-- `config_json` - Full bot configuration (weights, data sources, etc.)
-
----
-
-### Trading Strategies Table
-Stores backtested trading strategies.
-
-```sql
-CREATE TABLE trading_strategies (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    bot_config_id UUID NOT NULL REFERENCES bot_configurations(id) ON DELETE CASCADE,
-    strategy_name VARCHAR(100) NOT NULL,
-    strategy_code TEXT,  -- Python code for the strategy
-    backtest_results JSONB,  -- Performance metrics
-    is_active BOOLEAN DEFAULT false,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE INDEX idx_strategy_bot ON trading_strategies(bot_config_id);
-```
-
-**Fields:**
-- `strategy_code` - Python code defining the strategy
-- `backtest_results` - JSON with metrics (total_return, sharpe_ratio, max_drawdown, etc.)
-- `is_active` - Currently active strategy
+**Note:** Module 17 (AI Trading Bot) is taught as curriculum content only. Students build their bots externally in Cursor/VS Code. No bot execution or storage within the platform.
 
 ---
 
@@ -306,57 +256,6 @@ CREATE TABLE cohort_members (
 
 CREATE INDEX idx_cohort_members_cohort ON cohort_members(cohort_id);
 CREATE INDEX idx_cohort_members_user ON cohort_members(user_id);
-```
-
----
-
-### Code Submissions Table
-Stores student code submissions for Modules 11-17.
-
-```sql
-CREATE TABLE code_submissions (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    assessment_id UUID NOT NULL REFERENCES assessments(id) ON DELETE CASCADE,
-    github_url VARCHAR(500),
-    file_uploads JSONB,  -- If not using GitHub: {"filename.py": "content"}
-    status VARCHAR(20) DEFAULT 'submitted',  -- 'submitted', 'graded', 'revision-needed'
-    grade INTEGER,
-    max_grade INTEGER DEFAULT 100,
-    instructor_feedback TEXT,
-    rubric_scores JSONB,  -- {"functionality": 40, "code_quality": 30, ...}
-    submission_version INTEGER DEFAULT 1,
-    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    graded_at TIMESTAMP,
-    graded_by UUID REFERENCES users(id)
-);
-
-CREATE INDEX idx_submissions_user ON code_submissions(user_id);
-CREATE INDEX idx_submissions_assessment ON code_submissions(assessment_id);
-CREATE INDEX idx_submissions_status ON code_submissions(status);
-CREATE INDEX idx_submissions_grader ON code_submissions(graded_by);
-```
-
----
-
-### Peer Reviews Table
-Stores peer reviews of code submissions.
-
-```sql
-CREATE TABLE peer_reviews (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    submission_id UUID NOT NULL REFERENCES code_submissions(id) ON DELETE CASCADE,
-    reviewer_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    rubric_scores JSONB,
-    comments TEXT,
-    is_helpful BOOLEAN,  -- Did submitter find it helpful?
-    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
-    UNIQUE(submission_id, reviewer_id)
-);
-
-CREATE INDEX idx_peer_reviews_submission ON peer_reviews(submission_id);
-CREATE INDEX idx_peer_reviews_reviewer ON peer_reviews(reviewer_id);
 ```
 
 ---
@@ -463,13 +362,27 @@ CREATE INDEX idx_resources_module ON learning_resources(module_id);
 ### One-to-Many
 - `User` → `UserProgress` (one user has many module progress records)
 - `User` → `QuizAttempt` (one user has many quiz attempts)
-- `User` → `BotConfiguration` (one user can have multiple bot configs)
+- `User` → `ForumPost` (one user creates many posts)
 - `Module` → `Lesson` (one module has many lessons)
 - `Module` → `Assessment` (one module has many assessments)
-- `BotConfiguration` → `TradingStrategy` (one bot config has many strategies)
+- `Module` → `LearningResource` (one module has many external resources)
+- `Module` → `ForumPost` (one module has many discussion posts)
+- `Cohort` → `CohortMember` (one cohort has many members)
+- `ForumPost` → `ForumPost` (self-referencing for replies)
 
 ### Many-to-Many
 - `User` ↔ `Module` (through `UserProgress`)
+- `User` ↔ `Cohort` (through `CohortMember`)
+- `User` ↔ `Achievement` (through `UserAchievement`)
+
+### Simplified from Original Plan
+**Removed tables (not needed for LMS):**
+- ~~CodeSubmissions~~ - Students code externally
+- ~~PeerReviews~~ - Code review done offline
+- ~~BotConfigurations~~ - Bots built externally
+- ~~TradingStrategies~~ - Not executed in platform
+
+**Final count: 12 tables** (streamlined for content delivery)
 
 ---
 

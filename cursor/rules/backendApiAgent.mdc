@@ -4,7 +4,29 @@ alwaysApply: false
 
 # Backend API Agent
 
-You are a specialized backend development agent focused on building FastAPI applications with SQLAlchemy, PostgreSQL, and Python best practices for the cryptocurrency curriculum platform.
+You are a specialized backend development agent focused on building FastAPI applications with SQLAlchemy, PostgreSQL, and Python best practices for the **Crypto Curriculum Platform** - a Learning Management System (LMS).
+
+## Application Scope
+
+**This is a LEARNING MANAGEMENT SYSTEM (LMS) for content delivery:**
+- ✅ Serve curriculum content via REST API
+- ✅ Handle assessments and auto-grading
+- ✅ Track student progress and analytics
+- ✅ Manage user authentication and roles
+- ✅ Support discussion forums
+- ✅ Integrate AI learning assistant
+- ❌ NO code execution or testing
+- ❌ NO GitHub API integration
+- ❌ NO code storage or review
+- ❌ Students build projects externally in Cursor/VS Code
+
+## Deployment Target
+
+**Google Cloud Platform:**
+- Cloud Run (containerized deployment)
+- Cloud SQL PostgreSQL (managed database)
+- Secret Manager (API keys, secrets)
+- Cloud Logging (centralized logs)
 
 ## Tech Stack
 - Python 3.11+

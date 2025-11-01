@@ -310,101 +310,7 @@ Get user's assessment results for a module.
 
 ---
 
-## AI Trading Bot Endpoints
-
-### GET `/bot/configurations`
-Get user's trading bot configurations.
-
-**Headers:** Requires authentication
-
-**Response (200 OK):**
-```json
-{
-  "configurations": [
-    {
-      "id": "uuid",
-      "name": "My First Bot",
-      "llm_provider": "anthropic",
-      "llm_model": "claude-3-5-sonnet-20241022",
-      "is_active": false,
-      "is_paper_trading": true,
-      "created_at": "2025-11-01T10:00:00Z"
-    }
-  ]
-}
-```
-
----
-
-### POST `/bot/configurations`
-Create a new bot configuration.
-
-**Headers:** Requires authentication
-
-**Request:**
-```json
-{
-  "name": "My Trading Bot",
-  "llm_provider": "anthropic",
-  "llm_model": "claude-3-5-sonnet-20241022",
-  "is_paper_trading": true,
-  "max_position_size_percent": 10.0,
-  "stop_loss_percent": 5.0,
-  "config_json": {
-    "weights": {
-      "technical": 0.35,
-      "sentiment": 0.20,
-      "onchain": 0.25
-    },
-    "data_sources": ["binance", "coingecko", "twitter"]
-  }
-}
-```
-
-**Response (201 Created):**
-```json
-{
-  "id": "uuid",
-  "name": "My Trading Bot",
-  "llm_provider": "anthropic",
-  "is_active": false,
-  "created_at": "2025-11-01T12:30:00Z"
-}
-```
-
----
-
-### POST `/bot/configurations/{config_id}/backtest`
-Run backtest on historical data.
-
-**Headers:** Requires authentication
-
-**Request:**
-```json
-{
-  "symbol": "bitcoin",
-  "start_date": "2024-01-01",
-  "end_date": "2024-12-31",
-  "initial_capital": 10000
-}
-```
-
-**Response (200 OK):**
-```json
-{
-  "backtest_id": "uuid",
-  "results": {
-    "total_return_percent": 25.5,
-    "sharpe_ratio": 1.8,
-    "max_drawdown_percent": -12.3,
-    "win_rate": 0.65,
-    "total_trades": 42,
-    "profitable_trades": 27,
-    "final_capital": 12550.00
-  },
-  "completed_at": "2025-11-01T12:35:00Z"
-}
-```
+**Note:** Module 17 (AI Trading Bot) is curriculum content only. Students learn concepts in the platform, then build their bots externally using Cursor/VS Code and the provided code examples in `curriculum/code-examples/module-17/`.
 
 ---
 
@@ -498,11 +404,154 @@ Get platform analytics (admin/teacher only).
 
 ---
 
+## Forum Endpoints
+
+### GET `/forums/modules/{module_id}/posts`
+Get forum posts for a module.
+
+**Query Parameters:**
+- `sort` (optional) - 'recent', 'popular', 'unsolved'
+- `limit` (optional) - Default 20
+- `offset` (optional) - For pagination
+
+**Response (200 OK):**
+```json
+{
+  "posts": [
+    {
+      "id": "uuid",
+      "title": "Question about smart contract gas fees",
+      "content": "I don't understand why...",
+      "author": {
+        "username": "student123",
+        "role": "student"
+      },
+      "upvotes": 5,
+      "reply_count": 3,
+      "is_solved": false,
+      "is_pinned": false,
+      "created_at": "2025-11-01T10:00:00Z"
+    }
+  ],
+  "total": 45
+}
+```
+
+---
+
+### POST `/forums/posts`
+Create a new forum post.
+
+**Headers:** Requires authentication
+
+**Request:**
+```json
+{
+  "module_id": 1,
+  "title": "Question about consensus mechanisms",
+  "content": "Can someone explain the difference between..."
+}
+```
+
+**Response (201 Created):**
+```json
+{
+  "id": "uuid",
+  "module_id": 1,
+  "title": "Question about consensus mechanisms",
+  "created_at": "2025-11-01T12:00:00Z"
+}
+```
+
+---
+
+### POST `/forums/posts/{post_id}/replies`
+Reply to a forum post.
+
+**Headers:** Requires authentication
+
+**Request:**
+```json
+{
+  "content": "Great question! PoW uses computational work..."
+}
+```
+
+**Response (201 Created):**
+```json
+{
+  "id": "uuid",
+  "parent_post_id": "parent-uuid",
+  "content": "Great question! PoW uses...",
+  "created_at": "2025-11-01T12:05:00Z"
+}
+```
+
+---
+
+### POST `/forums/posts/{post_id}/vote`
+Upvote or downvote a post.
+
+**Headers:** Requires authentication
+
+**Request:**
+```json
+{
+  "vote_type": "upvote"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "post_id": "uuid",
+  "upvotes": 6,
+  "your_vote": "upvote"
+}
+```
+
+---
+
+## Chat Assistant Endpoint
+
+### POST `/chat/ask`
+Get help from AI learning assistant.
+
+**Headers:** Requires authentication
+
+**Request:**
+```json
+{
+  "message": "I don't understand gas fees",
+  "context": {
+    "current_module": 3,
+    "current_lesson": "uuid"
+  }
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "response": "Gas fees are like postage stamps for transactions...",
+  "suggested_lessons": [
+    {
+      "module_id": 3,
+      "lesson_id": "uuid",
+      "title": "Understanding Gas Fees"
+    }
+  ],
+  "escalate_to_instructor": false
+}
+```
+
+---
+
 ## Rate Limiting
 
 - **Unauthenticated endpoints:** 100 requests/hour per IP
 - **Authenticated endpoints:** 1000 requests/hour per user
-- **Bot backtest endpoints:** 10 requests/hour per user (computationally expensive)
+- **AI chat endpoint:** 50 requests/hour per user (LLM API costs)
 
 ---
 

@@ -4,7 +4,33 @@ alwaysApply: false
 
 # Frontend Component Agent
 
-You are a specialized frontend development agent focused on building React components with TypeScript, Material-UI (MUI) v7, and Tailwind CSS for the cryptocurrency curriculum platform.
+You are a specialized frontend development agent focused on building React components with TypeScript, Material-UI (MUI) v7, Tailwind CSS, and Framer Motion for the **Crypto Curriculum Platform** - a Learning Management System (LMS).
+
+## Application Scope
+
+**This is a CONTENT DELIVERY platform, NOT a code development platform:**
+- ✅ Display curriculum lessons (Markdown/HTML content)
+- ✅ Deliver assessments (quizzes and tests)
+- ✅ Track student progress
+- ✅ Enable discussions (forums)
+- ✅ Provide AI learning assistance
+- ❌ NO code submission/review features
+- ❌ NO code editor/IDE integration
+- ❌ NO GitHub integration
+- ❌ Students code in external tools (Cursor, VS Code)
+
+## Design Reference
+
+**CRITICAL:** The UI design must mirror the structure and aesthetic found in:
+**Reference File:** `/Users/midnight/Desktop/crypto curriculum/dev/part 1 webpage example.html`
+
+**Key design elements from example:**
+- Sticky sidebar navigation
+- Card-based content layout
+- Clean "Learning Hub" aesthetic
+- Professional color scheme
+- Responsive mobile/desktop layout
+- Smooth scroll interactions
 
 ## Tech Stack
 - React 18.3+ with TypeScript

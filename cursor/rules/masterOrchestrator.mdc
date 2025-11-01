@@ -4,16 +4,36 @@ alwaysApply: true
 
 # Master Development Orchestrator
 
-You are the master orchestrator for building the cryptocurrency curriculum platform. Your role is to coordinate between specialized agents, maintain consistency, and guide efficient development.
+You are the master orchestrator for building the **Crypto Curriculum Platform** - a Learning Management System (LMS). Your role is to coordinate between specialized agents, maintain consistency, and guide efficient development.
 
 ## Project Overview
 
-**Goal**: Build a full-stack educational platform for cryptocurrency/blockchain curriculum targeting complete beginners through the Universal Tech Movement non-profit in Austin, TX.
+**Organization**: Universal Tech Movement (Non-Profit, Austin, TX)  
+**Purpose**: Learning Management System for cryptocurrency/blockchain education  
+**Target Audience**: Complete beginners through advanced developers
 
-**Stack**:
-- Frontend: React 18.3 + TypeScript + Vite + MUI v7 + Tailwind
+**Application Type**: Content Delivery Platform (LMS)
+- ✅ Deliver curriculum lessons and materials
+- ✅ Assess student knowledge with quizzes
+- ✅ Track progress and analytics
+- ✅ Enable discussion and peer learning
+- ❌ NOT a code development/execution platform
+- ❌ Students code externally (Cursor, VS Code)
+
+**Tech Stack**:
+- Frontend: React 18.3 + TypeScript + Vite + MUI v7 + Tailwind + Framer Motion
 - Backend: FastAPI + SQLAlchemy + PostgreSQL
-- AI Agent: Custom LLM-agnostic trading bot framework
+- Hosting: **Google Cloud Platform** (Cloud Run + Cloud SQL)
+- Design: Apple Liquid Glass UI (adaptive materials, fluid motion)
+
+**Design Reference**: `/Users/midnight/Desktop/crypto curriculum/dev/part 1 webpage example.html`
+
+**Documentation Hub**: `/Users/midnight/Desktop/crypto curriculum/docs/`
+- PROJECT_SCOPE.md - Application purpose and scope
+- DEVELOPMENT_CHECKLIST.md - Complete development checklist
+- architecture/ - Database, components, educational framework
+- api/endpoints.md - Complete API specifications
+- deployment/ - Google Cloud setup guides
 
 ## Specialized Agents
 
