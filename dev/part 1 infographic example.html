@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Ultimate Blockchain Curriculum Infographic</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F7FAFC;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .flowchart-step {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            background-color: #CAF0F8;
+            color: #004AAD;
+            font-weight: 600;
+            min-height: 60px;
+            flex-grow: 1;
+        }
+        .flowchart-arrow {
+            font-size: 2rem;
+            color: #0077B6;
+            margin: 0 1rem;
+        }
+        .timeline-item {
+            position: relative;
+            padding-bottom: 2rem;
+            padding-left: 2.5rem;
+            border-left: 2px solid #90E0EF;
+        }
+        .timeline-dot {
+            position: absolute;
+            left: -11px;
+            top: 0;
+            height: 20px;
+            width: 20px;
+            border-radius: 9999px;
+            background-color: #0077B6;
+            border: 4px solid #CAF0F8;
+        }
+    </style>
+</head>
+<body class="bg-[#F7FAFC] text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-[#004AAD] mb-2">Your Journey into Blockchain</h1>
+            <p class="text-lg md:text-xl text-[#0077B6]">From Core Concepts to the Decentralized Future</p>
+        </header>
+
+        <section id="intro" class="mb-12">
+            <div class="bg-white rounded-lg shadow-md p-8 text-center">
+                <p class="text-lg text-gray-600 mb-4">This infographic visualizes a complete curriculum designed to take you from an absolute beginner to a knowledgeable enthusiast. The journey is broken down into key areas, each building on the last.</p>
+                <div class="text-6xl font-bold text-[#004AAD]">16</div>
+                <p class="text-xl font-semibold text-[#0077B6]">Total Hours of Comprehensive Learning</p>
+            </div>
+        </section>
+
+        <section id="foundation" class="mb-12">
+            <h2 class="text-3xl font-bold text-center text-[#004AAD] mb-8">Module 1: The Foundation of Blockchain</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+                <div class="bg-white rounded-lg shadow-md p-6 text-center">
+                    <div class="text-4xl mb-3">⛓️</div>
+                    <h3 class="text-xl font-semibold text-[#004AAD] mb-2">Distributed Ledger</h3>
+                    <p class="text-gray-600">The core idea: a shared, synchronized database copied across a network. It's transparent, secure, and incredibly difficult to tamper with because there is no single point of failure.</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 text-center">
+                    <div class="text-4xl mb-3">✅</div>
+                    <h3 class="text-xl font-semibold text-[#004AAD] mb-2">Consensus Mechanisms</h3>
+                    <p class="text-gray-600">The rules for agreeing on the state of the ledger. These protocols ensure that all participants have the same version of the truth without needing a central authority.</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 text-center">
+                    <div class="text-4xl mb-3">📜</div>
+                    <h3 class="text-xl font-semibold text-[#004AAD] mb-2">Smart Contracts</h3>
+                    <p class="text-gray-600">Self-executing code that runs on the blockchain. Like a digital vending machine, it automatically enforces the terms of an agreement when specific conditions are met.</p>
+                </div>
+            </div>
+             <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-semibold text-center text-[#004AAD] mb-4">Comparing Consensus: Energy vs. Speed</h3>
+                <p class="text-center text-gray-600 mb-4">Not all consensus mechanisms are created equal. Proof-of-Work (PoW) is famously secure but energy-intensive, while newer methods like Proof-of-Stake (PoS) prioritize efficiency and speed. This chart illustrates the conceptual trade-offs.</p>
+                <div class="chart-container">
+                    <canvas id="consensusChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="wallets" class="mb-12">
+            <h2 class="text-3xl font-bold text-center text-[#004AAD] mb-8">Module 2: Your Digital Identity & Security</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-semibold text-center text-[#004AAD] mb-4">Wallet Types: Control vs. Convenience</h3>
+                    <p class="text-center text-gray-600 mb-6">Choosing a wallet is your first major decision. It boils down to a trade-off: do you want full control over your funds, or the convenience of a third-party service?</p>
+                    <div class="grid grid-cols-2 gap-4 text-center">
+                        <div>
+                            <div class="text-3xl mb-2">🏦</div>
+                            <h4 class="font-bold text-lg text-[#0077B6]">Custodial</h4>
+                            <ul class="text-left list-disc list-inside text-sm text-gray-600 mt-2 space-y-1">
+                                <li>Keys held by a third party (exchange).</li>
+                                <li>Easy to use, password recovery possible.</li>
+                                <li>Analogy: A bank account.</li>
+                                <li>Risk: Not your keys, not your coins.</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <div class="text-3xl mb-2">🔑</div>
+                            <h4 class="font-bold text-lg text-[#0077B6]">Non-Custodial</h4>
+                            <ul class="text-left list-disc list-inside text-sm text-gray-600 mt-2 space-y-1">
+                                <li>You control your own keys.</li>
+                                <li>Full ownership and control.</li>
+                                <li>Analogy: Cash in your pocket.</li>
+                                <li>Risk: Lose your keys, lose your funds.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-semibold text-center text-[#004AAD] mb-4">The Threat Landscape: Common Scams</h3>
+                    <p class="text-center text-gray-600 mb-4">Security is paramount. The decentralized world requires personal responsibility. This chart shows a hypothetical breakdown of common attack vectors beginners must watch out for. Awareness is the first line of defense.</p>
+                     <div class="chart-container h-80 md:h-96">
+                        <canvas id="scamsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="mechanics" class="mb-12">
+            <h2 class="text-3xl font-bold text-center text-[#004AAD] mb-8">Modules 3 & 7: How It All Works</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-semibold text-center text-[#004AAD] mb-4">The Cost of a Transaction: Gas Fees</h3>
+                    <p class="text-center text-gray-600 mb-6">Every action on a blockchain costs a small fee, called "gas." This fee pays the validators who secure the network and prevents spam. Understanding the basic formula helps you optimize your transaction costs.</p>
+                    <div class="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0">
+                        <div class="flowchart-step">(Base Fee + Tip)</div>
+                        <div class="flowchart-arrow">×</div>
+                        <div class="flowchart-step">Gas Units</div>
+                        <div class="flowchart-arrow">=</div>
+                        <div class="flowchart-step bg-[#00B4D8] text-white">Total Fee</div>
+                    </div>
+                </div>
+                 <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-semibold text-center text-[#004AAD] mb-4">Scaling the Network: Layer-1 vs. Layer-2</h3>
+                    <p class="text-center text-gray-600 mb-4">Main blockchains (Layer-1s) can get congested and expensive. Layer-2 solutions are built on top to process transactions faster and cheaper, making blockchain technology viable for mainstream use.</p>
+                    <div class="chart-container">
+                        <canvas id="l2Chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="assets" class="mb-12">
+            <h2 class="text-3xl font-bold text-center text-[#004AAD] mb-8">Module 4: The Assets of the Ecosystem</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-semibold text-center text-[#004AAD] mb-4">Token Standards Distribution</h3>
+                    <p class="text-center text-gray-600 mb-4">Tokens follow blueprints called "standards." ERC-20s are fungible (like dollars), while ERC-721s are non-fungible (NFTs, like unique art). This creates a diverse ecosystem of digital assets.</p>
+                    <div class="chart-container h-80 md:h-96">
+                        <canvas id="tokenStandardsChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-semibold text-center text-[#004AAD] mb-4">NFT Marketplace Dominance (Conceptual)</h3>
+                    <p class="text-center text-gray-600 mb-4">The market for NFTs is vibrant, with several platforms competing for artists and collectors. This chart shows a conceptual breakdown of market share, illustrating a competitive and evolving landscape.</p>
+                    <div class="chart-container h-80 md:h-96">
+                        <canvas id="nftMarketplaceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="economy" class="mb-12">
+            <h2 class="text-3xl font-bold text-center text-[#004AAD] mb-8">Modules 5 & 6: The New Decentralized Economy</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                 <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-semibold text-center text-[#004AAD] mb-4">Exchange Volume: CEX vs. DEX</h3>
+                    <p class="text-center text-gray-600 mb-4">Centralized Exchanges (CEX) are the primary gateway for many, but Decentralized Exchanges (DEX) are growing rapidly as users prioritize self-custody. This trend shows the maturation of the ecosystem.</p>
+                    <div class="chart-container">
+                        <canvas id="cexDexChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-semibold text-center text-[#004AAD] mb-4">DeFi Sector Profiles</h3>
+                    <p class="text-center text-gray-600 mb-4">Decentralized Finance (DeFi) offers a wide range of services. Each has a different profile in terms of potential yield, risk, and complexity for the user. This radar chart compares key sectors.</p>
+                    <div class="chart-container">
+                        <canvas id="defiChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="future" class="mb-12">
+            <h2 class="text-3xl font-bold text-center text-[#004AAD] mb-8">The Future: Governance & Advanced Concepts</h2>
+             <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-semibold text-center text-[#004AAD] mb-4">Lifecycle of a DAO Proposal</h3>
+                <p class="text-center text-gray-600 mb-6">Decentralized Autonomous Organizations (DAOs) are governed by their members. This timeline shows the transparent, community-driven process of making decisions, from initial idea to on-chain execution.</p>
+                <div class="relative">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <h4 class="font-semibold text-lg text-[#0077B6]">1. Proposal Creation</h4>
+                        <p class="text-gray-600">A community member drafts a formal proposal outlining a change or new initiative and submits it for consideration.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <h4 class="font-semibold text-lg text-[#0077B6]">2. Community Discussion</h4>
+                        <p class="text-gray-600">The proposal is debated on forums and community calls. Feedback is gathered, and amendments may be made.</p>
+                    </div>
+                     <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <h4 class="font-semibold text-lg text-[#0077B6]">3. On-Chain Voting</h4>
+                        <p class="text-gray-600">Members use their governance tokens to vote for or against the proposal. The weight of their vote is often proportional to their token holdings.</p>
+                    </div>
+                     <div class="timeline-item border-l-transparent pb-0">
+                        <div class="timeline-dot"></div>
+                        <h4 class="font-semibold text-lg text-[#0077B6]">4. Execution</h4>
+                        <p class="text-gray-600">If the vote passes the required threshold, the proposal's smart contract is automatically executed, implementing the change on the blockchain.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <footer class="text-center text-gray-500 text-sm mt-12">
+            <p>Infographic created to visualize the blockchain curriculum. All data is illustrative and for educational purposes.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        const brilliantBlues = {
+            dark: '#004AAD',
+            mid: '#0077B6',
+            light: '#00B4D8',
+            lighter: '#90E0EF',
+            lightest: '#CAF0F8'
+        };
+
+        const chartDefaultOptions = {
+            maintainAspectRatio: false,
+            responsive: true,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: brilliantBlues.dark
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        title: function(tooltipItems) {
+                            const item = tooltipItems[0];
+                            let label = item.chart.data.labels[item.dataIndex];
+                            if (Array.isArray(label)) {
+                              return label.join(' ');
+                            } else {
+                              return label;
+                            }
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: brilliantBlues.mid },
+                    grid: { display: false }
+                },
+                y: {
+                    ticks: { color: brilliantBlues.mid },
+                    grid: { color: brilliantBlues.lightest }
+                }
+            }
+        };
+        
+        function wrapLabel(str, maxWidth) {
+            if (str.length <= maxWidth) {
+                return str;
+            }
+            const words = str.split(' ');
+            let lines = [];
+            let currentLine = '';
+            for (const word of words) {
+                if ((currentLine + word).length > maxWidth && currentLine.length > 0) {
+                    lines.push(currentLine.trim());
+                    currentLine = '';
+                }
+                currentLine += word + ' ';
+            }
+            lines.push(currentLine.trim());
+            return lines;
+        }
+
+        new Chart(document.getElementById('consensusChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Proof-of-Work (PoW)', 'Proof-of-Stake (PoS)', 'Delegated PoS (DPoS)'],
+                datasets: [{
+                    label: 'Relative Energy Use',
+                    data: [100, 5, 2],
+                    backgroundColor: brilliantBlues.light,
+                    borderColor: brilliantBlues.mid,
+                    borderWidth: 1
+                }, {
+                    label: 'Relative Speed',
+                    data: [20, 80, 95],
+                    backgroundColor: brilliantBlues.dark,
+                    borderColor: brilliantBlues.mid,
+                    borderWidth: 1
+                }]
+            },
+            options: chartDefaultOptions
+        });
+
+        const scamLabels = ['Phishing Scams', 'Fraudulent dApps & Airdrops', 'Social Engineering', 'Malware'].map(l => wrapLabel(l, 16));
+        new Chart(document.getElementById('scamsChart'), {
+            type: 'doughnut',
+            data: {
+                labels: scamLabels,
+                datasets: [{
+                    label: 'Common Scams',
+                    data: [40, 25, 20, 15],
+                    backgroundColor: [brilliantBlues.dark, brilliantBlues.mid, brilliantBlues.light, brilliantBlues.lighter],
+                    hoverOffset: 4
+                }]
+            },
+            options: { ...chartDefaultOptions, scales: { x: { display: false }, y: { display: false } } }
+        });
+
+        new Chart(document.getElementById('l2Chart'), {
+            type: 'bar',
+            data: {
+                labels: ['Layer-1 (Mainnet)', 'Layer-2 (Rollup)'],
+                datasets: [{
+                    label: 'Average Transaction Cost ($)',
+                    data: [25, 0.15],
+                    backgroundColor: brilliantBlues.light,
+                }, {
+                    label: 'Transactions Per Second',
+                    data: [15, 2000],
+                    backgroundColor: brilliantBlues.dark,
+                }]
+            },
+            options: {
+                ...chartDefaultOptions,
+                 indexAxis: 'y',
+            }
+        });
+        
+        const tokenLabels = ['ERC-20 (Fungible)', 'ERC-721 (NFT)', 'ERC-1155 (Multi-Token)'].map(l => wrapLabel(l, 16));
+        new Chart(document.getElementById('tokenStandardsChart'), {
+            type: 'doughnut',
+            data: {
+                labels: tokenLabels,
+                datasets: [{
+                    label: 'Token Standard Distribution',
+                    data: [65, 25, 10],
+                    backgroundColor: [brilliantBlues.dark, brilliantBlues.mid, brilliantBlues.light],
+                    hoverOffset: 4
+                }]
+            },
+            options: { ...chartDefaultOptions, scales: { x: { display: false }, y: { display: false } } }
+        });
+
+        new Chart(document.getElementById('nftMarketplaceChart'), {
+            type: 'pie',
+            data: {
+                labels: ['OpenSea', 'Blur', 'Magic Eden', 'Other'],
+                datasets: [{
+                    label: 'Market Share',
+                    data: [45, 30, 15, 10],
+                    backgroundColor: [brilliantBlues.dark, brilliantBlues.mid, brilliantBlues.light, brilliantBlues.lighter],
+                    hoverOffset: 4
+                }]
+            },
+            options: { ...chartDefaultOptions, scales: { x: { display: false }, y: { display: false } } }
+        });
+        
+        new Chart(document.getElementById('cexDexChart'), {
+            type: 'line',
+            data: {
+                labels: ['2021', '2022', '2023', '2024', '2025 (proj.)'],
+                datasets: [{
+                    label: 'CEX Volume (Trillions)',
+                    data: [14, 9, 7, 8, 8.5],
+                    borderColor: brilliantBlues.dark,
+                    backgroundColor: brilliantBlues.dark + '33',
+                    fill: true,
+                    tension: 0.3
+                }, {
+                    label: 'DEX Volume (Trillions)',
+                    data: [1, 1.2, 0.8, 1.5, 2.2],
+                    borderColor: brilliantBlues.light,
+                    backgroundColor: brilliantBlues.light + '33',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: chartDefaultOptions
+        });
+
+        new Chart(document.getElementById('defiChart'), {
+            type: 'radar',
+            data: {
+                labels: ['Potential Yield', 'Complexity', 'Risk', 'Capital Efficiency'],
+                datasets: [{
+                    label: 'Lending',
+                    data: [4, 3, 4, 7],
+                    fill: true,
+                    backgroundColor: brilliantBlues.dark + '4D',
+                    borderColor: brilliantBlues.dark,
+                    pointBackgroundColor: brilliantBlues.dark
+                }, {
+                    label: 'DEX Liquidity Providing',
+                    data: [7, 6, 7, 6],
+                    fill: true,
+                    backgroundColor: brilliantBlues.light + '4D',
+                    borderColor: brilliantBlues.light,
+                    pointBackgroundColor: brilliantBlues.light
+                }, {
+                    label: 'Yield Farming',
+                    data: [9, 9, 8, 5],
+                    fill: true,
+                    backgroundColor: brilliantBlues.mid + '4D',
+                    borderColor: brilliantBlues.mid,
+                    pointBackgroundColor: brilliantBlues.mid
+                }]
+            },
+            options: {
+                ...chartDefaultOptions,
+                scales: {
+                    r: {
+                        angleLines: { color: brilliantBlues.lighter },
+                        grid: { color: brilliantBlues.lighter },
+                        pointLabels: { color: brilliantBlues.dark, font: { size: 14 } },
+                        ticks: { display: false }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

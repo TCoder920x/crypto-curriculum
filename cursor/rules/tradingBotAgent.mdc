@@ -1,0 +1,657 @@
+---
+alwaysApply: false
+---
+
+# Trading Bot Framework Agent
+
+You are a specialized AI agent focused on building a custom, LLM-agnostic trading bot framework for the cryptocurrency curriculum platform's Module 17.
+
+## Core Objective
+
+Build a flexible, educational AI agent system that:
+- Works with ANY LLM (OpenAI, Anthropic, Ollama, local models)
+- Implements trading strategies using technical indicators
+- Provides backtesting capabilities
+- Integrates with blockchain data sources
+- Is easy for students to understand and modify
+
+## Tech Stack
+- Python 3.11+
+- Abstract base classes for extensibility
+- Pydantic for configuration
+- httpx for async HTTP calls
+- pandas/numpy for data analysis
+- pandas-ta or ta-lib for technical indicators
+- asyncio for concurrent operations
+
+## Project Structure
+
+```
+/app/backend/ai_agent/
+  base_agent.py           # Abstract base agent class
+  llm_provider.py         # Universal LLM interface
+  trading_agent.py        # Trading-specific agent
+  prompt_templates.py     # Prompt engineering templates
+  config.py               # Configuration management
+  /tools/
+    price_fetcher.py      # Fetch crypto prices
+    indicators.py         # Technical indicators
+    backtester.py         # Backtesting engine
+    risk_calculator.py    # Risk management
+  /providers/
+    openai_provider.py    # OpenAI implementation
+    anthropic_provider.py # Anthropic implementation
+    ollama_provider.py    # Local model implementation
+  /examples/
+    basic_bot.py          # Simple example for students
+    advanced_bot.py       # Advanced strategies
+```
+
+## 1. Base Agent Architecture
+
+```python
+# base_agent.py
+from abc import ABC, abstractmethod
+from typing import List, Dict, Any, Optional, Callable
+from pydantic import BaseModel
+import logging
+
+logger = logging.getLogger(__name__)
+
+class Tool(BaseModel):
+    """Represents a tool the agent can use"""
+    name: str
+    description: str
+    function: Callable
+    parameters: Dict[str, Any]
+
+class Message(BaseModel):
+    """Represents a message in the conversation"""
+    role: str  # 'system', 'user', 'assistant', 'tool'
+    content: str
+    tool_calls: Optional[List[Dict[str, Any]]] = None
+    tool_call_id: Optional[str] = None
+
+class AgentConfig(BaseModel):
+    """Agent configuration"""
+    model_name: str
+    temperature: float = 0.7
+    max_tokens: int = 1000
+    timeout: int = 30
+
+class BaseAgent(ABC):
+    """
+    Abstract base class for all AI agents.
+    Provides tool registration, message management, and execution framework.
+    """
+    
+    def __init__(self, config: AgentConfig, llm_provider: 'BaseLLMProvider'):
+        self.config = config
+        self.llm_provider = llm_provider
+        self.tools: Dict[str, Tool] = {}
+        self.conversation_history: List[Message] = []
+        self.logger = logging.getLogger(self.__class__.__name__)
+    
+    def register_tool(self, tool: Tool) -> None:
+        """Register a tool for the agent to use"""
+        self.tools[tool.name] = tool
+        self.logger.info(f"Registered tool: {tool.name}")
+    
+    def add_message(self, role: str, content: str) -> None:
+        """Add a message to conversation history"""
+        message = Message(role=role, content=content)
+        self.conversation_history.append(message)
+    
+    async def execute_tool(self, tool_name: str, **kwargs) -> Any:
+        """Execute a registered tool"""
+        if tool_name not in self.tools:
+            raise ValueError(f"Tool '{tool_name}' not found")
+        
+        tool = self.tools[tool_name]
+        self.logger.debug(f"Executing tool: {tool_name} with args: {kwargs}")
+        
+        try:
+            result = await tool.function(**kwargs)
+            return result
+        except Exception as e:
+            self.logger.error(f"Tool execution failed: {str(e)}")
+            raise
+    
+    async def run(self, user_input: str, max_iterations: int = 5) -> str:
+        """
+        Main agent loop with tool calling capability
+        
+        Args:
+            user_input: User's query or instruction
+            max_iterations: Maximum number of tool-calling iterations
+            
+        Returns:
+            Final agent response
+        """
+        self.add_message("user", user_input)
+        
+        for iteration in range(max_iterations):
+            self.logger.info(f"Iteration {iteration + 1}/{max_iterations}")
+            
+            # Get response from LLM
+            response = await self.llm_provider.generate(
+                messages=self.conversation_history,
+                tools=self.get_tool_schemas(),
+                config=self.config
+            )
+            
+            # Check if LLM wants to call tools
+            if response.tool_calls:
+                # Execute tool calls
+                for tool_call in response.tool_calls:
+                    tool_result = await self.execute_tool(
+                        tool_call["name"],
+                        **tool_call["arguments"]
+                    )
+                    
+                    # Add tool result to conversation
+                    self.add_message(
+                        "tool",
+                        f"Tool '{tool_call['name']}' returned: {tool_result}"
+                    )
+            else:
+                # No more tool calls, return final answer
+                self.add_message("assistant", response.content)
+                return response.content
+        
+        return "Max iterations reached"
+    
+    def get_tool_schemas(self) -> List[Dict[str, Any]]:
+        """Get OpenAI-compatible tool schemas"""
+        return [
+            {
+                "type": "function",
+                "function": {
+                    "name": tool.name,
+                    "description": tool.description,
+                    "parameters": tool.parameters
+                }
+            }
+            for tool in self.tools.values()
+        ]
+    
+    def reset_conversation(self) -> None:
+        """Clear conversation history"""
+        self.conversation_history.clear()
+        self.logger.info("Conversation reset")
+    
+    @abstractmethod
+    async def initialize(self) -> None:
+        """Initialize agent-specific tools and setup"""
+        pass
+```
+
+## 2. LLM Provider Interface
+
+```python
+# llm_provider.py
+from abc import ABC, abstractmethod
+from typing import List, Dict, Any, Optional
+from pydantic import BaseModel
+
+class LLMResponse(BaseModel):
+    """Standardized LLM response"""
+    content: str
+    tool_calls: Optional[List[Dict[str, Any]]] = None
+    finish_reason: str
+    usage: Dict[str, int]
+
+class BaseLLMProvider(ABC):
+    """Abstract base class for LLM providers"""
+    
+    def __init__(self, api_key: Optional[str] = None, base_url: Optional[str] = None):
+        self.api_key = api_key
+        self.base_url = base_url
+    
+    @abstractmethod
+    async def generate(
+        self,
+        messages: List[Message],
+        tools: Optional[List[Dict[str, Any]]] = None,
+        config: Optional[AgentConfig] = None
+    ) -> LLMResponse:
+        """Generate a response from the LLM"""
+        pass
+    
+    @abstractmethod
+    def format_messages(self, messages: List[Message]) -> List[Dict[str, Any]]:
+        """Convert internal message format to provider-specific format"""
+        pass
+```
+
+## 3. Provider Implementations
+
+```python
+# providers/openai_provider.py
+import openai
+from typing import List, Dict, Any, Optional
+
+class OpenAIProvider(BaseLLMProvider):
+    """OpenAI API implementation"""
+    
+    def __init__(self, api_key: str):
+        super().__init__(api_key=api_key)
+        self.client = openai.AsyncOpenAI(api_key=api_key)
+    
+    async def generate(
+        self,
+        messages: List[Message],
+        tools: Optional[List[Dict[str, Any]]] = None,
+        config: Optional[AgentConfig] = None
+    ) -> LLMResponse:
+        """Generate response using OpenAI API"""
+        
+        formatted_messages = self.format_messages(messages)
+        
+        kwargs = {
+            "model": config.model_name if config else "gpt-4",
+            "messages": formatted_messages,
+            "temperature": config.temperature if config else 0.7,
+            "max_tokens": config.max_tokens if config else 1000,
+        }
+        
+        if tools:
+            kwargs["tools"] = tools
+            kwargs["tool_choice"] = "auto"
+        
+        response = await self.client.chat.completions.create(**kwargs)
+        
+        # Extract tool calls if present
+        tool_calls = None
+        message = response.choices[0].message
+        if message.tool_calls:
+            tool_calls = [
+                {
+                    "name": tc.function.name,
+                    "arguments": json.loads(tc.function.arguments)
+                }
+                for tc in message.tool_calls
+            ]
+        
+        return LLMResponse(
+            content=message.content or "",
+            tool_calls=tool_calls,
+            finish_reason=response.choices[0].finish_reason,
+            usage={
+                "prompt_tokens": response.usage.prompt_tokens,
+                "completion_tokens": response.usage.completion_tokens,
+                "total_tokens": response.usage.total_tokens
+            }
+        )
+    
+    def format_messages(self, messages: List[Message]) -> List[Dict[str, Any]]:
+        """Format messages for OpenAI API"""
+        return [{"role": msg.role, "content": msg.content} for msg in messages]
+
+
+# providers/anthropic_provider.py
+import anthropic
+from typing import List, Dict, Any, Optional
+
+class AnthropicProvider(BaseLLMProvider):
+    """Anthropic Claude API implementation"""
+    
+    def __init__(self, api_key: str):
+        super().__init__(api_key=api_key)
+        self.client = anthropic.AsyncAnthropic(api_key=api_key)
+    
+    async def generate(
+        self,
+        messages: List[Message],
+        tools: Optional[List[Dict[str, Any]]] = None,
+        config: Optional[AgentConfig] = None
+    ) -> LLMResponse:
+        """Generate response using Anthropic API"""
+        
+        formatted_messages = self.format_messages(messages)
+        
+        # Extract system message if present
+        system_message = next(
+            (msg["content"] for msg in formatted_messages if msg["role"] == "system"),
+            None
+        )
+        messages_without_system = [
+            msg for msg in formatted_messages if msg["role"] != "system"
+        ]
+        
+        kwargs = {
+            "model": config.model_name if config else "claude-3-5-sonnet-20241022",
+            "messages": messages_without_system,
+            "max_tokens": config.max_tokens if config else 1000,
+            "temperature": config.temperature if config else 0.7,
+        }
+        
+        if system_message:
+            kwargs["system"] = system_message
+        
+        if tools:
+            # Convert to Anthropic tool format
+            kwargs["tools"] = [tool["function"] for tool in tools]
+        
+        response = await self.client.messages.create(**kwargs)
+        
+        # Extract tool calls if present
+        tool_calls = None
+        content = ""
+        
+        for block in response.content:
+            if block.type == "text":
+                content += block.text
+            elif block.type == "tool_use":
+                if tool_calls is None:
+                    tool_calls = []
+                tool_calls.append({
+                    "name": block.name,
+                    "arguments": block.input
+                })
+        
+        return LLMResponse(
+            content=content,
+            tool_calls=tool_calls,
+            finish_reason=response.stop_reason,
+            usage={
+                "prompt_tokens": response.usage.input_tokens,
+                "completion_tokens": response.usage.output_tokens,
+                "total_tokens": response.usage.input_tokens + response.usage.output_tokens
+            }
+        )
+    
+    def format_messages(self, messages: List[Message]) -> List[Dict[str, Any]]:
+        """Format messages for Anthropic API"""
+        return [{"role": msg.role, "content": msg.content} for msg in messages]
+
+
+# providers/ollama_provider.py
+import httpx
+from typing import List, Dict, Any, Optional
+
+class OllamaProvider(BaseLLMProvider):
+    """Ollama local model implementation"""
+    
+    def __init__(self, base_url: str = "http://localhost:11434"):
+        super().__init__(base_url=base_url)
+    
+    async def generate(
+        self,
+        messages: List[Message],
+        tools: Optional[List[Dict[str, Any]]] = None,
+        config: Optional[AgentConfig] = None
+    ) -> LLMResponse:
+        """Generate response using Ollama API"""
+        
+        formatted_messages = self.format_messages(messages)
+        
+        payload = {
+            "model": config.model_name if config else "llama2",
+            "messages": formatted_messages,
+            "stream": False,
+            "options": {
+                "temperature": config.temperature if config else 0.7,
+                "num_predict": config.max_tokens if config else 1000,
+            }
+        }
+        
+        if tools:
+            payload["tools"] = tools
+        
+        async with httpx.AsyncClient(timeout=config.timeout if config else 30) as client:
+            response = await client.post(
+                f"{self.base_url}/api/chat",
+                json=payload
+            )
+            response.raise_for_status()
+            data = response.json()
+        
+        # Parse tool calls if present
+        tool_calls = None
+        if "tool_calls" in data.get("message", {}):
+            tool_calls = data["message"]["tool_calls"]
+        
+        return LLMResponse(
+            content=data.get("message", {}).get("content", ""),
+            tool_calls=tool_calls,
+            finish_reason=data.get("done_reason", "stop"),
+            usage={
+                "prompt_tokens": data.get("prompt_eval_count", 0),
+                "completion_tokens": data.get("eval_count", 0),
+                "total_tokens": data.get("prompt_eval_count", 0) + data.get("eval_count", 0)
+            }
+        )
+    
+    def format_messages(self, messages: List[Message]) -> List[Dict[str, Any]]:
+        """Format messages for Ollama API"""
+        return [{"role": msg.role, "content": msg.content} for msg in messages]
+```
+
+## 4. Trading Agent Implementation
+
+```python
+# trading_agent.py
+from app.ai_agent.base_agent import BaseAgent, Tool, AgentConfig
+from app.ai_agent.tools.price_fetcher import fetch_price, fetch_historical_data
+from app.ai_agent.tools.indicators import calculate_rsi, calculate_moving_average
+from app.ai_agent.tools.risk_calculator import calculate_position_size
+from app.ai_agent.prompt_templates import TRADING_SYSTEM_PROMPT
+
+class TradingAgent(BaseAgent):
+    """
+    Specialized trading agent with technical analysis capabilities.
+    Students can extend this class to create custom strategies.
+    """
+    
+    async def initialize(self) -> None:
+        """Register trading-specific tools"""
+        
+        # Add system prompt
+        self.add_message("system", TRADING_SYSTEM_PROMPT)
+        
+        # Register price fetching tool
+        self.register_tool(Tool(
+            name="fetch_current_price",
+            description="Get the current price of a cryptocurrency",
+            function=fetch_price,
+            parameters={
+                "type": "object",
+                "properties": {
+                    "symbol": {
+                        "type": "string",
+                        "description": "Cryptocurrency symbol (e.g., BTC, ETH)"
+                    }
+                },
+                "required": ["symbol"]
+            }
+        ))
+        
+        # Register RSI calculator
+        self.register_tool(Tool(
+            name="calculate_rsi",
+            description="Calculate Relative Strength Index for a cryptocurrency",
+            function=calculate_rsi,
+            parameters={
+                "type": "object",
+                "properties": {
+                    "symbol": {"type": "string"},
+                    "period": {"type": "integer", "default": 14},
+                    "timeframe": {"type": "string", "default": "1h"}
+                },
+                "required": ["symbol"]
+            }
+        ))
+        
+        # Register moving average calculator
+        self.register_tool(Tool(
+            name="calculate_moving_average",
+            description="Calculate Simple or Exponential Moving Average",
+            function=calculate_moving_average,
+            parameters={
+                "type": "object",
+                "properties": {
+                    "symbol": {"type": "string"},
+                    "period": {"type": "integer"},
+                    "ma_type": {"type": "string", "enum": ["SMA", "EMA"]},
+                    "timeframe": {"type": "string", "default": "1h"}
+                },
+                "required": ["symbol", "period", "ma_type"]
+            }
+        ))
+        
+        # Register risk calculator
+        self.register_tool(Tool(
+            name="calculate_position_size",
+            description="Calculate safe position size based on risk management rules",
+            function=calculate_position_size,
+            parameters={
+                "type": "object",
+                "properties": {
+                    "portfolio_value": {"type": "number"},
+                    "risk_percent": {"type": "number"},
+                    "entry_price": {"type": "number"},
+                    "stop_loss_price": {"type": "number"}
+                },
+                "required": ["portfolio_value", "risk_percent", "entry_price", "stop_loss_price"]
+            }
+        ))
+        
+        self.logger.info("Trading agent initialized with all tools")
+    
+    async def analyze_market(self, symbol: str) -> Dict[str, Any]:
+        """
+        Perform comprehensive market analysis for a symbol.
+        This is a convenience method for students.
+        """
+        analysis_query = f"""
+        Analyze the market conditions for {symbol}:
+        1. Check the current price
+        2. Calculate RSI (14-period)
+        3. Calculate 50-period SMA
+        4. Calculate 200-period SMA
+        5. Provide a trading signal (BUY, SELL, or HOLD) with reasoning
+        """
+        
+        response = await self.run(analysis_query)
+        return {"symbol": symbol, "analysis": response}
+```
+
+## 5. Configuration System
+
+```python
+# config.py
+from pydantic import BaseModel, Field
+from typing import Literal, Optional
+import os
+
+class LLMConfig(BaseModel):
+    """LLM provider configuration"""
+    provider: Literal["openai", "anthropic", "ollama"] = "openai"
+    model_name: str = "gpt-4"
+    api_key: Optional[str] = None
+    base_url: Optional[str] = None
+    temperature: float = Field(0.7, ge=0.0, le=2.0)
+    max_tokens: int = Field(1000, gt=0)
+    timeout: int = Field(30, gt=0)
+
+class TradingConfig(BaseModel):
+    """Trading bot configuration"""
+    default_risk_percent: float = Field(1.0, ge=0.1, le=5.0)
+    max_position_size: float = Field(10000.0, gt=0)
+    stop_loss_percent: float = Field(2.0, ge=0.5, le=10.0)
+    data_source: Literal["coingecko", "binance", "coinmarketcap"] = "coingecko"
+
+class BotConfig(BaseModel):
+    """Complete bot configuration"""
+    llm: LLMConfig = LLMConfig()
+    trading: TradingConfig = TradingConfig()
+    
+    @classmethod
+    def from_env(cls) -> 'BotConfig':
+        """Load configuration from environment variables"""
+        return cls(
+            llm=LLMConfig(
+                provider=os.getenv("LLM_PROVIDER", "openai"),
+                model_name=os.getenv("LLM_MODEL", "gpt-4"),
+                api_key=os.getenv("LLM_API_KEY"),
+                base_url=os.getenv("LLM_BASE_URL"),
+            ),
+            trading=TradingConfig(
+                default_risk_percent=float(os.getenv("DEFAULT_RISK_PERCENT", "1.0")),
+                data_source=os.getenv("DATA_SOURCE", "coingecko"),
+            )
+        )
+```
+
+## 6. Simple Example for Students
+
+```python
+# examples/basic_bot.py
+import asyncio
+from app.ai_agent.trading_agent import TradingAgent
+from app.ai_agent.llm_provider import OpenAIProvider
+from app.ai_agent.base_agent import AgentConfig
+from app.ai_agent.config import BotConfig
+
+async def main():
+    """
+    Simple trading bot example for students.
+    This bot analyzes BTC and provides a trading signal.
+    """
+    
+    # Load configuration
+    config = BotConfig.from_env()
+    
+    # Initialize LLM provider
+    provider = OpenAIProvider(api_key=config.llm.api_key)
+    
+    # Create agent
+    agent_config = AgentConfig(
+        model_name=config.llm.model_name,
+        temperature=config.llm.temperature,
+        max_tokens=config.llm.max_tokens
+    )
+    
+    agent = TradingAgent(config=agent_config, llm_provider=provider)
+    await agent.initialize()
+    
+    # Analyze Bitcoin
+    print("🤖 Analyzing Bitcoin market...")
+    result = await agent.analyze_market("BTC")
+    
+    print("\n📊 Analysis Results:")
+    print(result["analysis"])
+    
+    # Clean up
+    agent.reset_conversation()
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+## Key Design Principles
+
+1. **Provider Agnostic**: Works with any LLM
+2. **Tool-Based Architecture**: Easy to add new capabilities
+3. **Educational Focus**: Simple, well-documented code
+4. **Type Safety**: Pydantic models throughout
+5. **Async First**: Non-blocking operations
+6. **Extensible**: Students can inherit and modify
+7. **Configuration-Driven**: Easy to customize
+8. **Error Handling**: Graceful failure modes
+
+## Student Modification Guide
+
+Students should be able to:
+- Add new tools (e.g., new indicators)
+- Create custom trading strategies
+- Switch between LLM providers
+- Modify risk management rules
+- Add new data sources
+- Implement backtesting logic
+- Build custom agents by inheriting from BaseAgent
+
+---
+
+This framework prioritizes **simplicity**, **flexibility**, and **educational value** over production optimization.

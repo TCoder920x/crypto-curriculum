@@ -1,0 +1,518 @@
+---
+alwaysApply: false
+---
+
+# Backend API Agent
+
+You are a specialized backend development agent focused on building FastAPI applications with SQLAlchemy, PostgreSQL, and Python best practices for the cryptocurrency curriculum platform.
+
+## Tech Stack
+- Python 3.11+
+- FastAPI for REST API
+- SQLAlchemy 2.0+ for ORM
+- Alembic for migrations
+- PostgreSQL 15+ for database
+- Pydantic v2 for validation
+- python-jose for JWT authentication
+- Pytest for testing
+
+## Core Principles
+
+### 1. Project Structure
+```
+/app/backend/
+  /api/
+    /v1/
+      /endpoints/
+        modules.py
+        users.py
+        progress.py
+        quizzes.py
+        auth.py
+  /services/          # Business logic
+    module_service.py
+    user_service.py
+    quiz_service.py
+  /models/            # SQLAlchemy models
+    user.py
+    module.py
+    progress.py
+    quiz.py
+  /schemas/           # Pydantic schemas
+    user.py
+    module.py
+    progress.py
+    quiz.py
+  /core/
+    config.py         # Configuration
+    security.py       # Auth utilities
+    database.py       # DB connection
+  /ai_agent/          # Trading bot framework
+    base_agent.py
+    llm_provider.py
+    trading_agent.py
+    /tools/
+  /utils/
+    logging.py
+    helpers.py
+  /tests/
+  main.py             # FastAPI app entry
+  requirements.txt
+```
+
+### 2. Naming Conventions
+- Files: `snake_case.py`
+- Classes: `PascalCase`
+- Functions/variables: `snake_case`
+- Constants: `UPPER_SNAKE_CASE`
+- Private methods: `_leading_underscore`
+
+### 3. FastAPI Route Structure
+
+```python
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from typing import List
+
+from app.api.deps import get_db, get_current_user
+from app.schemas.module import ModuleResponse, ModuleCreate
+from app.services.module_service import ModuleService
+from app.models.user import User
+
+router = APIRouter(prefix="/modules", tags=["modules"])
+
+@router.get("/", response_model=List[ModuleResponse])
+async def get_modules(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db)
+) -> List[ModuleResponse]:
+    """
+    Retrieve all curriculum modules.
+    
+    Args:
+        skip: Number of records to skip
+        limit: Maximum number of records to return
+        db: Database session
+        
+    Returns:
+        List of modules
+    """
+    service = ModuleService(db)
+    return await service.get_modules(skip=skip, limit=limit)
+
+@router.post("/", response_model=ModuleResponse, status_code=status.HTTP_201_CREATED)
+async def create_module(
+    module: ModuleCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+) -> ModuleResponse:
+    """Create a new module (admin only)"""
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to create modules"
+        )
+    service = ModuleService(db)
+    return await service.create_module(module)
+```
+
+### 4. SQLAlchemy Models Pattern
+
+```python
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey, Text
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
+from app.core.database import Base
+
+class Module(Base):
+    """Curriculum module model"""
+    __tablename__ = "modules"
+    
+    # Primary key
+    id = Column(Integer, primary_key=True, index=True)
+    
+    # Fields
+    title = Column(String(255), nullable=False, index=True)
+    description = Column(Text, nullable=True)
+    duration_hours = Column(Integer, nullable=False)
+    track = Column(String(50), nullable=False)  # user, analyst, developer, architect
+    order_index = Column(Integer, nullable=False)
+    is_active = Column(Boolean, default=True, nullable=False)
+    
+    # Timestamps
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    
+    # Relationships
+    lessons = relationship("Lesson", back_populates="module", cascade="all, delete-orphan")
+    quizzes = relationship("Quiz", back_populates="module")
+    user_progress = relationship("UserProgress", back_populates="module")
+    
+    def __repr__(self):
+        return f"<Module(id={self.id}, title='{self.title}')>"
+```
+
+### 5. Pydantic Schemas Pattern
+
+```python
+from pydantic import BaseModel, Field, ConfigDict
+from typing import Optional, List
+from datetime import datetime
+
+# Base schema with common fields
+class ModuleBase(BaseModel):
+    title: str = Field(..., min_length=1, max_length=255)
+    description: Optional[str] = None
+    duration_hours: int = Field(..., gt=0)
+    track: str = Field(..., pattern="^(user|analyst|developer|architect)$")
+    order_index: int = Field(..., ge=0)
+
+# Schema for creation (no id, timestamps)
+class ModuleCreate(ModuleBase):
+    pass
+
+# Schema for updates (all fields optional)
+class ModuleUpdate(BaseModel):
+    title: Optional[str] = Field(None, min_length=1, max_length=255)
+    description: Optional[str] = None
+    duration_hours: Optional[int] = Field(None, gt=0)
+    is_active: Optional[bool] = None
+
+# Schema for responses (includes id, timestamps)
+class ModuleResponse(ModuleBase):
+    id: int
+    is_active: bool
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+    
+    model_config = ConfigDict(from_attributes=True)
+
+# Schema with relationships
+class ModuleWithLessons(ModuleResponse):
+    lessons: List["LessonResponse"] = []
+```
+
+### 6. Service Layer Pattern
+
+```python
+from sqlalchemy.orm import Session
+from sqlalchemy import select
+from typing import List, Optional
+from fastapi import HTTPException, status
+
+from app.models.module import Module
+from app.schemas.module import ModuleCreate, ModuleUpdate
+
+class ModuleService:
+    """Business logic for module operations"""
+    
+    def __init__(self, db: Session):
+        self.db = db
+    
+    async def get_modules(self, skip: int = 0, limit: int = 100) -> List[Module]:
+        """Get all active modules"""
+        result = await self.db.execute(
+            select(Module)
+            .where(Module.is_active == True)
+            .order_by(Module.order_index)
+            .offset(skip)
+            .limit(limit)
+        )
+        return result.scalars().all()
+    
+    async def get_module_by_id(self, module_id: int) -> Module:
+        """Get module by ID"""
+        result = await self.db.execute(
+            select(Module).where(Module.id == module_id)
+        )
+        module = result.scalar_one_or_none()
+        
+        if not module:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Module with id {module_id} not found"
+            )
+        return module
+    
+    async def create_module(self, module_data: ModuleCreate) -> Module:
+        """Create a new module"""
+        module = Module(**module_data.model_dump())
+        self.db.add(module)
+        await self.db.commit()
+        await self.db.refresh(module)
+        return module
+    
+    async def update_module(
+        self, 
+        module_id: int, 
+        module_data: ModuleUpdate
+    ) -> Module:
+        """Update an existing module"""
+        module = await self.get_module_by_id(module_id)
+        
+        update_data = module_data.model_dump(exclude_unset=True)
+        for field, value in update_data.items():
+            setattr(module, field, value)
+        
+        await self.db.commit()
+        await self.db.refresh(module)
+        return module
+    
+    async def delete_module(self, module_id: int) -> bool:
+        """Soft delete a module"""
+        module = await self.get_module_by_id(module_id)
+        module.is_active = False
+        await self.db.commit()
+        return True
+```
+
+### 7. Authentication & Authorization
+
+```python
+# core/security.py
+from datetime import datetime, timedelta
+from typing import Optional
+from jose import JWTError, jwt
+from passlib.context import CryptContext
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+
+SECRET_KEY = "your-secret-key"  # Use environment variable
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
+
+def get_password_hash(password: str) -> str:
+    return pwd_context.hash(password)
+
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+async def get_current_user(
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+) -> User:
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+    
+    user = await UserService(db).get_user_by_id(int(user_id))
+    if user is None:
+        raise credentials_exception
+    return user
+```
+
+### 8. Database Configuration
+
+```python
+# core/database.py
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import declarative_base, sessionmaker
+from app.core.config import settings
+
+# Create async engine
+engine = create_async_engine(
+    settings.DATABASE_URL,
+    echo=settings.DEBUG,
+    future=True
+)
+
+# Create session factory
+AsyncSessionLocal = sessionmaker(
+    engine,
+    class_=AsyncSession,
+    expire_on_commit=False
+)
+
+Base = declarative_base()
+
+# Dependency for routes
+async def get_db() -> AsyncSession:
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+        finally:
+            await session.close()
+```
+
+### 9. Error Handling
+
+```python
+from fastapi import FastAPI, Request, status
+from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
+from sqlalchemy.exc import SQLAlchemyError
+import logging
+
+app = FastAPI()
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={
+            "success": False,
+            "message": "Validation error",
+            "errors": exc.errors()
+        }
+    )
+
+@app.exception_handler(SQLAlchemyError)
+async def sqlalchemy_exception_handler(request: Request, exc: SQLAlchemyError):
+    logging.error(f"Database error: {exc}")
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={
+            "success": False,
+            "message": "Database error occurred"
+        }
+    )
+
+@app.exception_handler(Exception)
+async def general_exception_handler(request: Request, exc: Exception):
+    logging.error(f"Unexpected error: {exc}")
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={
+            "success": False,
+            "message": "Internal server error"
+        }
+    )
+```
+
+### 10. Response Format Standard
+
+```python
+from typing import Generic, TypeVar, Optional
+from pydantic import BaseModel
+
+T = TypeVar('T')
+
+class APIResponse(BaseModel, Generic[T]):
+    """Standard API response format"""
+    success: bool
+    message: Optional[str] = None
+    data: Optional[T] = None
+
+# Usage in routes
+@router.get("/modules/{module_id}")
+async def get_module(module_id: int, db: Session = Depends(get_db)):
+    service = ModuleService(db)
+    module = await service.get_module_by_id(module_id)
+    return APIResponse(
+        success=True,
+        message="Module retrieved successfully",
+        data=module
+    )
+```
+
+## Testing Pattern
+
+```python
+import pytest
+from httpx import AsyncClient
+from app.main import app
+from app.core.database import get_db
+from tests.utils import override_get_db, get_test_db
+
+@pytest.mark.asyncio
+async def test_get_modules():
+    """Test getting all modules"""
+    app.dependency_overrides[get_db] = override_get_db
+    
+    async with AsyncClient(app=app, base_url="http://test") as client:
+        response = await client.get("/api/v1/modules/")
+    
+    assert response.status_code == 200
+    data = response.json()
+    assert data["success"] is True
+    assert isinstance(data["data"], list)
+
+@pytest.mark.asyncio
+async def test_create_module_unauthorized():
+    """Test creating module without auth"""
+    async with AsyncClient(app=app, base_url="http://test") as client:
+        response = await client.post(
+            "/api/v1/modules/",
+            json={"title": "Test Module", "duration_hours": 2}
+        )
+    
+    assert response.status_code == 401
+```
+
+## Anti-Patterns to Avoid
+
+❌ **Avoid:**
+- Business logic in routes
+- Direct database queries in routes
+- Missing error handling
+- No input validation
+- Hardcoded configuration
+- Synchronous database calls
+- Missing indexes on foreign keys
+- No logging
+- Exposing internal errors to clients
+
+✅ **Do:**
+- Service layer for business logic
+- SQLAlchemy ORM for queries
+- Comprehensive error handling
+- Pydantic validation
+- Environment-based configuration
+- Async/await for I/O operations
+- Proper database indexing
+- Structured logging
+- User-friendly error messages
+
+## Logging Pattern
+
+```python
+import logging
+from app.core.config import settings
+
+logging.basicConfig(
+    level=logging.INFO if not settings.DEBUG else logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+
+logger = logging.getLogger(__name__)
+
+# Usage in services
+logger.info(f"Fetching module with id: {module_id}")
+logger.error(f"Failed to create module: {str(e)}")
+logger.debug(f"Query params: skip={skip}, limit={limit}")
+```
+
+---
+
+When building API endpoints, always ensure:
+1. Proper separation of concerns (routes → services → models)
+2. Comprehensive error handling
+3. Input validation with Pydantic
+4. Authentication and authorization
+5. Consistent response format
+6. Logging for debugging
+7. Database transaction management
+8. API documentation (OpenAPI/Swagger)
