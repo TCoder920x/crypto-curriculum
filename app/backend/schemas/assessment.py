@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 from typing import Optional, Dict, List
 from datetime import datetime
 from app.backend.models.assessment import QuestionType
-from app.backend.models.progress import ReviewStatus
+from app.backend.models.progress import ReviewStatus, ProgressStatus
 
 
 class AssessmentResponse(BaseModel):
@@ -69,6 +69,7 @@ class ModuleResultsResponse(BaseModel):
     can_progress: bool = Field(..., description="True if score >= 70% and all questions attempted")
     best_score_percent: Optional[float] = None
     attempt_count: int = Field(..., description="Number of times user has taken this assessment")
+    progress_status: ProgressStatus
 
 
 class AssessmentListResponse(BaseModel):

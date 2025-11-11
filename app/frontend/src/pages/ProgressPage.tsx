@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { moduleService } from '../services/moduleService';
 import { assessmentService } from '../services/assessmentService';
 import type { Module } from '../types/module';
+import { ProgressStatus, type ModuleResultsResponse } from '../types/assessment';
 
 export const ProgressPage: React.FC = () => {
   const { mode } = useThemeMode();
@@ -38,11 +39,30 @@ export const ProgressPage: React.FC = () => {
   });
 
   const resultsByModule = resultsQueries.data || {};
-  const completedCount = modules.filter(
-    (m) => resultsByModule[m.id]?.can_progress === true
+
+  const moduleResults: ModuleResultsResponse[] = modules
+    .map((m) => resultsByModule[m.id])
+    .filter((result): result is ModuleResultsResponse => Boolean(result));
+
+  const completedCount = moduleResults.filter(
+    (result) => result.progress_status === ProgressStatus.COMPLETED
   ).length;
-  const completionPercent =
-    modules.length > 0 ? Math.round((completedCount / modules.length) * 100) : 0;
+
+  const overallCompletionPercent = modules.length
+    ? Math.round(
+        modules.reduce((acc, module) => {
+          const result = resultsByModule[module.id] as ModuleResultsResponse | undefined;
+          if (!result) return acc;
+          if (result.progress_status === ProgressStatus.COMPLETED) {
+            return acc + 100;
+          }
+          if (result.total_questions > 0) {
+            return acc + Math.round((result.attempted / result.total_questions) * 100);
+          }
+          return acc;
+        }, 0) / modules.length
+      )
+    : 0;
 
   return (
     <Box sx={{ minHeight: '100vh', backgroundColor, py: 4 }}>
@@ -58,11 +78,11 @@ export const ProgressPage: React.FC = () => {
             </Typography>
             <LinearProgress
               variant="determinate"
-              value={completionPercent}
+              value={overallCompletionPercent}
               sx={{ height: 10, borderRadius: 1 }}
             />
             <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-              {completedCount} of {modules.length} modules complete ({completionPercent}%)
+              {completedCount} of {modules.length} modules complete ({overallCompletionPercent}% overall progress)
             </Typography>
           </CardContent>
         </Card>
@@ -76,12 +96,29 @@ export const ProgressPage: React.FC = () => {
 
         <Grid container spacing={2}>
           {modules.map((m) => {
-            const r = resultsByModule[m.id];
-            const total = r?.total_questions || 0;
-            const attempted = r?.attempted || 0;
-            const correct = r?.correct || 0;
-            const canProgress = r?.can_progress === true;
-            const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
+            const r = resultsByModule[m.id] as ModuleResultsResponse | undefined;
+            const total = r?.total_questions ?? 0;
+            const attempted = r?.attempted ?? 0;
+            const correct = r?.correct ?? 0;
+
+            const statusLabel = (() => {
+              switch (r?.progress_status) {
+                case ProgressStatus.COMPLETED:
+                  return 'Completed';
+                case ProgressStatus.IN_PROGRESS:
+                  return 'In progress';
+                default:
+                  return 'Not started';
+              }
+            })();
+
+            const completionPercent =
+              r?.progress_status === ProgressStatus.COMPLETED
+                ? 100
+                : total > 0
+                  ? Math.round((attempted / total) * 100)
+                  : 0;
+
             return (
               <Grid size={{ xs: 12, sm: 6, md: 4 }} key={m.id}>
                 <Card className="glass-surface" sx={{ borderRadius: 3, height: '100%' }}>
@@ -90,12 +127,12 @@ export const ProgressPage: React.FC = () => {
                       {m.title}
                     </Typography>
                     <Typography variant="caption" sx={{ color: mode === 'light' ? 'text.secondary' : 'rgba(255,255,255,0.7)' }}>
-                      {canProgress ? 'Completed' : 'In progress'}
+                      {statusLabel}
                     </Typography>
                     <Box sx={{ mt: 2 }}>
-                      <LinearProgress variant="determinate" value={pct} sx={{ height: 8, borderRadius: 1 }} />
+                      <LinearProgress variant="determinate" value={completionPercent} sx={{ height: 8, borderRadius: 1 }} />
                       <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                        {correct}/{total} correct ({pct}%)
+                        {correct}/{total} correct ({completionPercent}% complete)
                       </Typography>
                     </Box>
                     {attempted > 0 && (

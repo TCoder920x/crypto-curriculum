@@ -416,5 +416,12 @@ Modules 14-17: Building complex systems and AI applications
         * **Focus:** A collection of free tutorials and learning paths for building dApps and NFT contracts.
         * **Fit:** Modules 11-15.
 
+---
+
+### Recommended Podcasts (YouTube Channels)
+* **Digital Asset News:** `https://www.youtube.com/@DigitalAssetNews`
+* **Whiteboard Crypto:** `https://www.youtube.com/@WhiteboardCrypto`
+* **Coin Bureau:** `https://www.youtube.com/@CoinBureau`
+
 **Current as of:** November 2, 2025
 

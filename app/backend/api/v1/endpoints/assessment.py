@@ -194,7 +194,8 @@ async def get_module_results(
             points_possible=0,
             attempts=[],
             can_progress=False,
-            attempt_count=0
+            attempt_count=0,
+            progress_status=ProgressStatus.NOT_STARTED
         )
     
     # Get all attempts for this user and module
@@ -240,6 +241,13 @@ async def get_module_results(
     
     # Check if user can progress (>= 70% and all questions attempted)
     can_progress = score_percent >= 70.0 and attempted == total_questions and pending_review == 0
+
+    if attempted == 0:
+        progress_status = ProgressStatus.NOT_STARTED
+    elif can_progress:
+        progress_status = ProgressStatus.COMPLETED
+    else:
+        progress_status = ProgressStatus.IN_PROGRESS
     
     # Get best score (highest score from any attempt)
     best_score = 0.0
@@ -293,28 +301,59 @@ async def get_module_results(
         a.order_index for a in assessments if a.id == x.assessment_id
     ))
     
-    # If user can progress, mark module as completed in UserProgress
-    if can_progress:
-        # Check if UserProgress exists
-        result = await db.execute(
-            select(UserProgress)
-            .where(
-                and_(
-                    UserProgress.user_id == current_user.id,
-                    UserProgress.module_id == module_id
-                )
+    # Sync UserProgress record with current status
+    result = await db.execute(
+        select(UserProgress)
+        .where(
+            and_(
+                UserProgress.user_id == current_user.id,
+                UserProgress.module_id == module_id
             )
         )
-        user_progress = result.scalar_one_or_none()
-        
+    )
+    user_progress = result.scalar_one_or_none()
+
+    completion_percentage = 100.0 if progress_status == ProgressStatus.COMPLETED else (
+        (attempted / total_questions) * 100 if total_questions > 0 else 0.0
+    )
+
+    if progress_status == ProgressStatus.NOT_STARTED:
         if user_progress:
-            # Update existing progress
+            user_progress.status = ProgressStatus.NOT_STARTED
+            user_progress.completion_percentage = 0.0
+            user_progress.started_at = None
+            user_progress.completed_at = None
+            user_progress.last_accessed_at = datetime.now()
+            await db.commit()
+    elif progress_status == ProgressStatus.IN_PROGRESS:
+        if user_progress:
+            user_progress.status = ProgressStatus.IN_PROGRESS
+            user_progress.completion_percentage = completion_percentage
+            user_progress.completed_at = None
+            if user_progress.started_at is None:
+                user_progress.started_at = datetime.now()
+            user_progress.last_accessed_at = datetime.now()
+        else:
+            user_progress = UserProgress(
+                user_id=current_user.id,
+                module_id=module_id,
+                status=ProgressStatus.IN_PROGRESS,
+                completion_percentage=completion_percentage,
+                started_at=datetime.now(),
+                completed_at=None,
+                last_accessed_at=datetime.now()
+            )
+            db.add(user_progress)
+        await db.commit()
+    else:  # progress_status == COMPLETED
+        if user_progress:
             user_progress.status = ProgressStatus.COMPLETED
             user_progress.completion_percentage = 100.0
+            if user_progress.started_at is None:
+                user_progress.started_at = datetime.now()
             user_progress.completed_at = datetime.now()
             user_progress.last_accessed_at = datetime.now()
         else:
-            # Create new progress record
             user_progress = UserProgress(
                 user_id=current_user.id,
                 module_id=module_id,
@@ -325,7 +364,6 @@ async def get_module_results(
                 last_accessed_at=datetime.now()
             )
             db.add(user_progress)
-        
         await db.commit()
     
     return ModuleResultsResponse(
@@ -341,6 +379,7 @@ async def get_module_results(
         attempts=attempt_responses,
         can_progress=can_progress,
         best_score_percent=round(best_score, 2) if best_score > 0 else None,
-        attempt_count=attempt_count
+        attempt_count=attempt_count,
+        progress_status=progress_status
     )
 

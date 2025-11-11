@@ -1,15 +1,21 @@
 /** Assessment types */
 export enum QuestionType {
-  MULTIPLE_CHOICE = 'multiple_choice',
-  TRUE_FALSE = 'true_false',
-  SHORT_ANSWER = 'short_answer',
-  CODING_TASK = 'coding_task',
+  MULTIPLE_CHOICE = 'MULTIPLE_CHOICE',
+  TRUE_FALSE = 'TRUE_FALSE',
+  SHORT_ANSWER = 'SHORT_ANSWER',
+  CODING_TASK = 'CODING_TASK',
 }
 
 export enum ReviewStatus {
   PENDING = 'pending',
   GRADED = 'graded',
   NEEDS_REVIEW = 'needs_review',
+}
+
+export enum ProgressStatus {
+  NOT_STARTED = 'not_started',
+  IN_PROGRESS = 'in_progress',
+  COMPLETED = 'completed',
 }
 
 export interface Assessment {
@@ -72,5 +78,6 @@ export interface ModuleResultsResponse {
   can_progress: boolean;
   best_score_percent: number | null;
   attempt_count: number;
+  progress_status: ProgressStatus;
 }
 
