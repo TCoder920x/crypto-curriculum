@@ -169,11 +169,13 @@ export const CohortsPage: React.FC = () => {
           flexDirection: 'column',
           opacity: isCancelled ? 0.7 : 1,
           backgroundColor: isCancelled ? 'action.hover' : 'transparent',
+          '& .MuiCardContent-root': { px: 5, pt: 5, pb: 3 },
+          '& .MuiCardActions-root': { px: 5, pb: 5, pt: 1 },
         }}
       >
         <CardContent sx={{ flexGrow: 1 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', mb: 2 }}>
-            <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'text.primary' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', mb: 2, gap: 2 }}>
+            <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'text.primary', flex: 1 }}>
               {cohort.name}
               {isCancelled && (
                 <Chip
@@ -188,6 +190,7 @@ export const CohortsPage: React.FC = () => {
               label={isFull ? 'Full' : `${spotsRemaining} spots left`}
               color={isFull ? 'error' : 'success'}
               size="small"
+              sx={{ flexShrink: 0 }}
             />
           </Box>
 
@@ -252,7 +255,7 @@ export const CohortsPage: React.FC = () => {
         </CardContent>
 
         {isAvailable && !isCancelled && (
-          <CardActions sx={{ p: 2, pt: 0 }}>
+          <CardActions>
             <Button
               variant="contained"
               fullWidth
@@ -280,7 +283,7 @@ export const CohortsPage: React.FC = () => {
         )}
 
         {!isAvailable && !isCancelled && (
-          <CardActions sx={{ p: 2, pt: 0 }}>
+          <CardActions>
             <Button
               variant="outlined"
               fullWidth
@@ -400,4 +403,3 @@ export const CohortsPage: React.FC = () => {
     </Box>
   );
 };
-

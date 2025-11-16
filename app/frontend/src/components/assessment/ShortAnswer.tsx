@@ -3,6 +3,7 @@ import React from 'react';
 import { Box, TextField, Typography, Alert } from '@mui/material';
 import { CheckCircle, HourglassEmpty } from '@mui/icons-material';
 import { motion } from 'framer-motion';
+import { MarkdownRenderer } from '../common/MarkdownRenderer';
 import type { Assessment, AssessmentSubmitResponse } from '../../types/assessment';
 import { ReviewStatus } from '../../types/assessment';
 
@@ -68,9 +69,10 @@ export const ShortAnswer: React.FC<ShortAnswerProps> = ({
                 </Typography>
               )}
               {result.explanation && (
-                <Typography variant="body2" className="mt-2">
-                  <strong>Explanation:</strong> {result.explanation}
-                </Typography>
+                <Box className="mt-2">
+                  <strong>Explanation:</strong>{' '}
+                  <MarkdownRenderer content={result.explanation} />
+                </Box>
               )}
             </Alert>
           ) : null}

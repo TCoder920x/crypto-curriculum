@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { useThemeMode } from '../contexts/ThemeContext';
 import { moduleService } from '../services/moduleService';
+import { MarkdownRenderer } from '../components/common/MarkdownRenderer';
 import type { Module } from '../types/module';
 
 export const ModulesListPage: React.FC = () => {
@@ -90,9 +91,31 @@ export const ModulesListPage: React.FC = () => {
                           {module.title}
                         </Typography>
                         {module.description && (
-                          <Typography variant="body2" sx={{ color: mode === 'light' ? 'text.secondary' : 'rgba(255, 255, 255, 0.8)', mb: 2 }}>
-                            {module.description}
-                          </Typography>
+                          <Box 
+                            sx={{ 
+                              mb: 2,
+                              color: mode === 'light' ? 'text.secondary' : 'rgba(255, 255, 255, 0.8)',
+                              '& .markdown-content': { 
+                                fontSize: '0.875rem',
+                                lineHeight: 1.5,
+                                '& p': { 
+                                  margin: 0,
+                                  marginBottom: '0.5rem',
+                                  display: 'block',
+                                  '&:last-child': { marginBottom: 0 }
+                                },
+                                '& strong, & b': {
+                                  fontWeight: 'bold',
+                                  color: 'inherit',
+                                },
+                                '& em, & i': {
+                                  fontStyle: 'italic',
+                                }
+                              } 
+                            }}
+                          >
+                            <MarkdownRenderer content={module.description} />
+                          </Box>
                         )}
                         <Typography variant="caption" sx={{ color: mode === 'light' ? 'text.secondary' : 'rgba(255, 255, 255, 0.6)', display: 'block' }}>
                           {module.track} • {module.duration_hours} hours

@@ -26,7 +26,7 @@ import { forumService, type ForumPost } from '../services/forumService';
 import { useAuth } from '../contexts/AuthContext';
 import { ReplyThread } from '../components/forum/ReplyThread';
 import { PostComposer } from '../components/forum/PostComposer';
-import ReactMarkdown from 'react-markdown';
+import { MarkdownRenderer } from '../components/common/MarkdownRenderer';
 
 export const ForumPostPage: React.FC = () => {
   const { moduleId, postId } = useParams<{ moduleId: string; postId: string }>();
@@ -163,7 +163,7 @@ export const ForumPostPage: React.FC = () => {
             </Box>
 
             <Box sx={{ mb: 2 }}>
-              <ReactMarkdown>{post.content}</ReactMarkdown>
+              <MarkdownRenderer content={post.content} />
             </Box>
           </Box>
         </Box>

@@ -3,6 +3,7 @@ import React from 'react';
 import { Box, Typography, Radio, RadioGroup, FormControlLabel, FormControl } from '@mui/material';
 import { CheckCircle, Cancel } from '@mui/icons-material';
 import { motion } from 'framer-motion';
+import { MarkdownRenderer } from '../common/MarkdownRenderer';
 import type { Assessment, AssessmentSubmitResponse } from '../../types/assessment';
 
 interface MultipleChoiceProps {
@@ -45,9 +46,10 @@ export const MultipleChoice: React.FC<MultipleChoiceProps> = ({
                 control={<Radio />}
                 label={
                   <Box className="flex items-center justify-between w-full">
-                    <Typography variant="body1">
-                      <strong>{key}.</strong> {options[key]}
-                    </Typography>
+                    <Box sx={{ flex: 1, '& .markdown-content': { display: 'inline', '& p': { display: 'inline', margin: 0 }, '& h1, & h2, & h3, & h4, & h5, & h6': { display: 'inline', margin: 0, fontSize: 'inherit' } } }}>
+                      <strong>{key}.</strong>{' '}
+                      <MarkdownRenderer content={options[key]} />
+                    </Box>
                     {showResult && (
                       <Box className="ml-4">
                         {isCorrect && (
@@ -79,9 +81,10 @@ export const MultipleChoice: React.FC<MultipleChoiceProps> = ({
           animate={{ opacity: 1, height: 'auto' }}
           className="mt-4 p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20"
         >
-          <Typography variant="body2" className="text-blue-900 dark:text-blue-100">
-            <strong>Explanation:</strong> {result.explanation}
-          </Typography>
+          <Box className="text-blue-900 dark:text-blue-100">
+            <strong>Explanation:</strong>{' '}
+            <MarkdownRenderer content={result.explanation} />
+          </Box>
         </motion.div>
       )}
     </FormControl>

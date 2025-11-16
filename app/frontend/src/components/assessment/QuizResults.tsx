@@ -4,6 +4,7 @@ import { Box, Typography, Paper, LinearProgress, Button, Alert } from '@mui/mate
 import { CheckCircle, Cancel, CheckCircleOutline, ErrorOutline, HourglassEmpty } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { MarkdownRenderer } from '../common/MarkdownRenderer';
 import type { ModuleResultsResponse, QuizAttempt } from '../../types/assessment';
 import { ReviewStatus } from '../../types/assessment';
 
@@ -177,9 +178,12 @@ const QuestionResultItem: React.FC<QuestionResultItemProps> = ({ attempt, questi
         `}
       >
         <Box className="flex items-start justify-between mb-2">
-          <Typography variant="subtitle1" className="font-semibold">
-            Question {questionNumber}: {attempt.question_text}
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="subtitle1" className="font-semibold mb-1">
+              Question {questionNumber}:
           </Typography>
+            <MarkdownRenderer content={attempt.question_text} />
+          </Box>
           <Box className="ml-4">
             {isCorrect && <CheckCircle color="success" />}
             {!isCorrect && !isPending && <Cancel color="error" />}
@@ -198,9 +202,10 @@ const QuestionResultItem: React.FC<QuestionResultItemProps> = ({ attempt, questi
         )}
 
         {attempt.feedback && (
-          <Typography variant="body2" className="mt-2 text-blue-700 dark:text-blue-300">
-            <strong>Feedback:</strong> {attempt.feedback}
-          </Typography>
+          <Box className="mt-2 text-blue-700 dark:text-blue-300">
+            <strong>Feedback:</strong>{' '}
+            <MarkdownRenderer content={attempt.feedback} />
+          </Box>
         )}
 
         {isPending && (

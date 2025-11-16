@@ -2,6 +2,7 @@
 import React from 'react';
 import { Box, Typography, Paper } from '@mui/material';
 import { motion } from 'framer-motion';
+import { MarkdownRenderer } from '../common/MarkdownRenderer';
 import type { Assessment } from '../../types/assessment';
 
 interface QuestionCardProps {
@@ -31,9 +32,9 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
           <Typography variant="caption" color="text.secondary" className="mb-2">
             Question {questionNumber} of {totalQuestions} • {assessment.points} points
           </Typography>
-          <Typography variant="h6" component="h2" className="font-semibold mb-4">
-            {assessment.question_text}
-          </Typography>
+          <Box className="mb-4">
+            <MarkdownRenderer content={assessment.question_text} />
+          </Box>
         </Box>
         {children}
       </Paper>

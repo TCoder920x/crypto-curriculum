@@ -1,0 +1,51 @@
+/* Additional markdown styling */
+.markdown-content {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  position: relative;
+}
+
+.markdown-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+}
+
+/* Table styling - ensure proper text wrapping */
+.markdown-content table {
+  display: table;
+  width: 100%;
+  table-layout: auto;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Ensure table cells wrap text properly and display full content */
+.markdown-content th,
+.markdown-content td {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+/* Responsive table wrapper for small screens */
+@media (max-width: 768px) {
+  .markdown-content {
+    overflow-x: auto;
+  }
+  
+  .markdown-content table {
+    font-size: 0.875rem;
+    min-width: 100%;
+  }
+  
+  .markdown-content th,
+  .markdown-content td {
+    padding: 0.5rem;
+    min-width: 100px;
+  }
+}
+

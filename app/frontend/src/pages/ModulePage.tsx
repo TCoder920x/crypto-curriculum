@@ -5,10 +5,10 @@ import { Box, Button, Typography, Paper, CircularProgress, Alert, Divider, Conta
 import { ArrowBack, ArrowForward, Assessment, CheckCircle } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
-import ReactMarkdown from 'react-markdown';
 import { useThemeMode } from '../contexts/ThemeContext';
 import { moduleService } from '../services/moduleService';
 import { assessmentService } from '../services/assessmentService';
+import { MarkdownRenderer } from '../components/common/MarkdownRenderer';
 import type { Lesson } from '../types/module';
 
 export const ModulePage: React.FC = () => {
@@ -101,9 +101,9 @@ export const ModulePage: React.FC = () => {
             {moduleData.title}
           </Typography>
           {moduleData.description && (
-            <Typography variant="body1" sx={{ color: mode === 'light' ? 'text.secondary' : 'rgba(255, 255, 255, 0.8)', mb: 1 }}>
-              {moduleData.description}
-            </Typography>
+            <Box sx={{ mb: 1, color: mode === 'light' ? 'text.secondary' : 'rgba(255, 255, 255, 0.8)' }}>
+              <MarkdownRenderer content={moduleData.description} />
+            </Box>
           )}
           <Typography variant="body2" sx={{ color: mode === 'light' ? 'text.secondary' : 'rgba(255, 255, 255, 0.6)' }}>
             Track: {moduleData.track} • Duration: {moduleData.duration_hours} hours
@@ -124,6 +124,7 @@ export const ModulePage: React.FC = () => {
                 borderRadius: 3,
                 p: 4,
                 mb: 4,
+                overflow: 'visible',
               }}
             >
               <Box sx={{ mb: 3 }}>
@@ -138,8 +139,8 @@ export const ModulePage: React.FC = () => {
 
               <Divider sx={{ my: 3, borderColor: mode === 'light' ? 'rgba(0,0,0,0.1)' : 'rgba(255, 255, 255, 0.2)' }} />
 
-              <Box sx={{ color: 'text.primary' }}>
-                <ReactMarkdown>{currentLesson.content}</ReactMarkdown>
+              <Box sx={{ overflowX: 'auto', width: '100%' }}>
+                <MarkdownRenderer content={currentLesson.content} />
               </Box>
             </Paper>
 

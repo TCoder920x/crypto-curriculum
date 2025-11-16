@@ -3,6 +3,7 @@ import React from 'react';
 import { Box, Button, Typography } from '@mui/material';
 import { CheckCircle, Cancel } from '@mui/icons-material';
 import { motion } from 'framer-motion';
+import { MarkdownRenderer } from '../common/MarkdownRenderer';
 import type { Assessment, AssessmentSubmitResponse } from '../../types/assessment';
 
 interface TrueFalseProps {
@@ -100,9 +101,10 @@ export const TrueFalse: React.FC<TrueFalseProps> = ({
           animate={{ opacity: 1, height: 'auto' }}
           className="mt-4 p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 w-full"
         >
-          <Typography variant="body2" className="text-blue-900 dark:text-blue-100">
-            <strong>Explanation:</strong> {result.explanation}
-          </Typography>
+          <Box className="text-blue-900 dark:text-blue-100">
+            <strong>Explanation:</strong>{' '}
+            <MarkdownRenderer content={result.explanation} />
+          </Box>
         </motion.div>
       )}
     </Box>
