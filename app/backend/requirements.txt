@@ -22,6 +22,12 @@ pydantic-settings==2.1.0
 # HTTP Client (for AI agent framework)
 httpx==0.26.0
 
+# OpenAI API (for AI chat assistant)
+openai>=1.0.0
+
+# Web scraping (optional, for web search feature)
+beautifulsoup4>=4.12.0
+
 # Data Processing (for AI agent)
 pandas==2.1.4
 numpy==1.26.3

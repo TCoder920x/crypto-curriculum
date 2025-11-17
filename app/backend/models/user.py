@@ -38,6 +38,10 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
+    # OpenAI Integration
+    openai_assistant_id = Column(String(255), nullable=True)  # User-specific OpenAI assistant ID
+    openai_vector_store_id = Column(String(255), nullable=True)  # User-specific vector store ID
+    
     # Relationships (will be defined in other models)
     # progress = relationship("UserProgress", back_populates="user", cascade="all, delete-orphan")
     # quiz_attempts = relationship("QuizAttempt", back_populates="user", cascade="all, delete-orphan")

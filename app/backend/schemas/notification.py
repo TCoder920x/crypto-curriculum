@@ -35,6 +35,7 @@ class NotificationUpdate(BaseModel):
 class ChatMessageCreate(BaseModel):
     """Schema for creating a chat message"""
     message: str = Field(..., min_length=1, description="User message")
+    conversation_id: Optional[int] = Field(None, description="Conversation ID (generated if not provided)")
     context: Optional[dict] = Field(None, description="Context about current module/lesson")
 
 
@@ -47,6 +48,7 @@ class ChatMessageResponse(BaseModel):
     context: Optional[dict]
     suggested_lessons: Optional[List[int]]
     escalated: bool
+    conversation_id: Optional[int]
     created_at: datetime
 
     class Config:
@@ -57,4 +59,37 @@ class ChatHistoryResponse(BaseModel):
     """Schema for chat history response"""
     messages: List[ChatMessageResponse]
     total: int
+
+
+class ConversationResponse(BaseModel):
+    """Schema for conversation metadata"""
+    conversation_id: int
+    title: Optional[str]
+    last_message_at: Optional[datetime]
+    message_count: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class ConversationListResponse(BaseModel):
+    """Schema for conversation list response"""
+    conversations: List[ConversationResponse]
+    total: int
+
+
+class ConversationDetailResponse(BaseModel):
+    """Schema for conversation detail with messages"""
+    conversation_id: int
+    title: Optional[str]
+    created_at: datetime
+    last_message_at: Optional[datetime]
+    message_count: int
+    messages: List[ChatMessageResponse]
+
+
+class ConversationTitleUpdate(BaseModel):
+    """Schema for updating conversation title"""
+    title: str = Field(..., min_length=1, max_length=200)
 

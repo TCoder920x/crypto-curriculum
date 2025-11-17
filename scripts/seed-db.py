@@ -33,6 +33,17 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 # Default password for all seeded users (development only)
 DEFAULT_PASSWORD = "password123"
 
+SEEDED_ASSISTANT_IDS = {
+    "admin@example.com": "asst_qWOCMdMjZEBrY2GXTZwQ5LNZ",
+    "instructor.alex@example.com": "asst_9TLrg6ggwZF4KEoV6m27zVc6",
+    "instructor.jordan@example.com": "asst_SeMjygQkeGEHoxjyinZrOGPT",
+    "casey.student@example.com": "asst_kLfua2GfxVCIRK6mbwQcyBZB",
+    "morgan.student@example.com": "asst_EnSCWDqWYDAD13VZnfKCTUKs",
+    "riley.student@example.com": "asst_9KLvo98g7cU1B20iFzzh1E2U",
+    "jamie.student@example.com": "asst_BOclsGwJ3YpMikjrJ7Cak6xE",
+    "taylor.student@example.com": "asst_U6X9OWostf97Imx45pjtjkn4",
+}
+
 BASE_DIR = Path(__file__).resolve().parents[1]
 CURRICULUM_DIR = BASE_DIR / "curriculum"
 OUTLINE_FILE = CURRICULUM_DIR / "blockchain curriculum outline.md"
@@ -70,6 +81,25 @@ MODULE_TRACKS = {
     "developer": range(11, 14),
     "architect": range(14, 18),
 }
+
+# Tables whose auto-increment sequences must be realigned after seeding
+SEQUENCE_RESET_TABLES = [
+    "users",
+    "modules",
+    "lessons",
+    "assessments",
+    "achievements",
+    "cohorts",
+    "cohort_members",
+    "cohort_deadlines",
+    "announcements",
+    "user_progress",
+    "quiz_attempts",
+    "notifications",
+    "chat_messages",
+    "leaderboards",
+    "learning_resources",
+]
 
 
 def new_uuid() -> str:
@@ -199,6 +229,25 @@ def bulk_insert(conn: Connection, table: str, rows: List[Dict[str, object]]) -> 
     columns = ", ".join(keys)
     stmt = text(f"INSERT INTO {table} ({columns}) VALUES ({placeholders})")
     conn.execute(stmt, rows)
+
+
+def reset_sequences(conn: Connection) -> None:
+    """
+    Ensure PostgreSQL sequences continue from max(id)+1 so future inserts
+    (which rely on auto-increment) do not collide with seeded rows.
+    """
+    for table in SEQUENCE_RESET_TABLES:
+        conn.execute(
+            text(
+                f"""
+                SELECT setval(
+                    pg_get_serial_sequence('{table}', 'id'),
+                    COALESCE((SELECT MAX(id) + 1 FROM {table}), 1),
+                    false
+                )
+                """
+            )
+        )
 
 
 def generate_modules_and_lessons(modules_outline: List[Dict[str, object]], lessons_map: Dict[int, List[Dict[str, object]]]) -> Tuple[List[Dict[str, object]], List[Dict[str, object]]]:
@@ -336,6 +385,8 @@ def generate_users() -> Tuple[List[Dict[str, object]], Dict[str, str]]:
             "is_verified": True,
             "created_at": now,
             "updated_at": now,
+            "openai_assistant_id": SEEDED_ASSISTANT_IDS.get("admin@example.com"),
+            "openai_vector_store_id": None,
         },
     ]
     user_id += 1
@@ -351,6 +402,8 @@ def generate_users() -> Tuple[List[Dict[str, object]], Dict[str, str]]:
         "is_verified": True,
             "created_at": now,
             "updated_at": now,
+        "openai_assistant_id": SEEDED_ASSISTANT_IDS.get("instructor.alex@example.com"),
+        "openai_vector_store_id": None,
     })
     user_id += 1
     
@@ -365,6 +418,8 @@ def generate_users() -> Tuple[List[Dict[str, object]], Dict[str, str]]:
         "is_verified": True,
             "created_at": now,
             "updated_at": now,
+        "openai_assistant_id": SEEDED_ASSISTANT_IDS.get("instructor.jordan@example.com"),
+        "openai_vector_store_id": None,
     })
     user_id += 1
 
@@ -389,6 +444,8 @@ def generate_users() -> Tuple[List[Dict[str, object]], Dict[str, str]]:
                 "is_verified": True,
                 "created_at": now,
                 "updated_at": now,
+                "openai_assistant_id": SEEDED_ASSISTANT_IDS.get(email),
+                "openai_vector_store_id": None,
             }
         )
         user_id += 1
@@ -561,7 +618,16 @@ def generate_progress_and_attempts(user_lookup: Dict[str, str], modules: List[Di
             )
             progress_id += 1
 
-        in_progress_module = random.choice([m["id"] for m in modules if m["id"] > 3])
+        candidate_in_progress = [
+            m["id"] for m in modules
+            if m["id"] > 3 and m["id"] not in completed_modules
+        ]
+        if not candidate_in_progress:
+            candidate_in_progress = [
+                m["id"] for m in modules
+                if m["id"] not in completed_modules
+            ] or [m["id"] for m in modules]
+        in_progress_module = random.choice(candidate_in_progress)
         progress_rows.append(
             {
                 "id": progress_id,
@@ -1057,6 +1123,7 @@ def main(argv: List[str]) -> int:
             bulk_insert(conn, "chat_messages", chat_messages_data)
             bulk_insert(conn, "leaderboards", leaderboard_data)
             bulk_insert(conn, "learning_resources", learning_resources_data)
+            reset_sequences(conn)
     except SQLAlchemyError as exc:
         logging.error("Database error while seeding: %s", exc)
         return 1

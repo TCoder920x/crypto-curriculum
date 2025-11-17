@@ -45,6 +45,9 @@ class ChatMessage(Base):
     context = Column(JSON, nullable=True)  # Stores current module/lesson info
     suggested_lessons = Column(JSON, nullable=True)  # Array of lesson IDs
     
+    # Conversation tracking
+    conversation_id = Column(Integer, nullable=True, index=True)  # Links messages to conversations
+    
     # Metadata
     escalated = Column(Boolean, default=False, nullable=False)
     
@@ -55,7 +58,7 @@ class ChatMessage(Base):
     # user = relationship("User")
     
     def __repr__(self):
-        return f"<ChatMessage(id={self.id}, user_id={self.user_id}, escalated={self.escalated})>"
+        return f"<ChatMessage(id={self.id}, user_id={self.user_id}, conversation_id={self.conversation_id}, escalated={self.escalated})>"
 
 
 class LearningResource(Base):

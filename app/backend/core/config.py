@@ -1,7 +1,7 @@
 """Application configuration settings"""
 from pydantic_settings import BaseSettings
 from typing import List
-from pydantic import field_validator
+from pydantic import field_validator, Field
 import os
 
 
@@ -37,9 +37,13 @@ class Settings(BaseSettings):
     DEFAULT_LLM_MODEL: str = "claude-3-5-sonnet-20241022"
     LLM_TEMPERATURE: float = 0.7
     LLM_MAX_TOKENS: int = 2000
-    OPENAI_API_KEY: str | None = None
     ANTHROPIC_API_KEY: str | None = None
     OLLAMA_BASE_URL: str = "http://localhost:11434"
+    
+    # OpenAI Assistants API Configuration
+    OPENAI_API_KEY: str = Field(default="", env="OPENAI_API_KEY")  # Required for AI chat
+    BRAVE_API_KEY: str = Field(default="", env="BRAVE_API_KEY")  # Optional, for web search
+    OPENAI_ASSISTANT_ID: str = Field(default="", env="OPENAI_ASSISTANT_ID")  # Optional, global fallback assistant
     
     # File Upload
     MAX_UPLOAD_SIZE_MB: int = 10

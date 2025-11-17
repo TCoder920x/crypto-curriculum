@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from datetime import datetime
 from typing import Optional
+import logging
 
 from app.backend.core.database import get_db
 from app.backend.core.security import (
@@ -24,6 +25,7 @@ from app.backend.schemas.auth import (
 )
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 # get_current_user already checks is_active, so we can use it directly
@@ -82,6 +84,15 @@ async def register(
     db.add(new_user)
     await db.commit()
     await db.refresh(new_user)
+    
+    # Create OpenAI assistant for new user
+    try:
+        from app.backend.core.openai_utils import get_or_create_user_assistant
+        await get_or_create_user_assistant(new_user, db)
+        logger.info(f"Created OpenAI assistant for new user {new_user.id}")
+    except Exception as e:
+        # Don't fail registration if assistant creation fails
+        logger.warning(f"Failed to create OpenAI assistant for user {new_user.id}: {e}")
     
     return new_user
 

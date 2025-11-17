@@ -1,12 +1,11 @@
 /** Header component with utility icons - logo, AI chat, theme toggle, notifications, profile */
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AppBar, Toolbar, Box, Typography, IconButton, Avatar, Badge, Menu, MenuItem, Divider, ListItemIcon, Tooltip, Dialog, DialogContent, DialogTitle, Button } from '@mui/material';
-import { School, Logout, Brightness4, Brightness7, Notifications, Settings, Person, SmartToy, Close } from '@mui/icons-material';
+import { AppBar, Toolbar, Box, Typography, IconButton, Avatar, Badge, Menu, MenuItem, Divider, ListItemIcon, Tooltip, Button } from '@mui/material';
+import { School, Logout, Brightness4, Brightness7, Notifications, Settings, Person, SmartToy } from '@mui/icons-material';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import { useThemeMode } from '../../contexts/ThemeContext';
-import { ChatInterface } from '../ai/ChatInterface';
 import { SidebarMenuButton } from './Sidebar';
 
 export const Navigation: React.FC = () => {
@@ -22,7 +21,6 @@ export const Navigation: React.FC = () => {
   // Header menus state
   const [profileAnchorEl, setProfileAnchorEl] = React.useState<null | HTMLElement>(null);
   const [notifAnchorEl, setNotifAnchorEl] = React.useState<null | HTMLElement>(null);
-  const [aiChatOpen, setAiChatOpen] = React.useState(false);
   const isProfileOpen = Boolean(profileAnchorEl);
   const isNotifOpen = Boolean(notifAnchorEl);
 
@@ -129,7 +127,7 @@ export const Navigation: React.FC = () => {
             {user && (
               <Tooltip title="AI Learning Assistant">
                 <IconButton
-                  onClick={() => setAiChatOpen(true)}
+                  onClick={() => navigate('/ai-assistant')}
                   sx={{
                     color: mode === 'light' ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.7)',
                     minWidth: '44px',
@@ -303,35 +301,6 @@ export const Navigation: React.FC = () => {
         </Toolbar>
       </AppBar>
 
-    {/* AI Chat Dialog */}
-    <Dialog
-      open={aiChatOpen}
-      onClose={() => setAiChatOpen(false)}
-      maxWidth="md"
-      fullWidth
-      PaperProps={{
-        sx: {
-          height: '80vh',
-          maxHeight: 800,
-        },
-      }}
-    >
-        <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <SmartToy color="primary" />
-          <Typography variant="h6">AI Learning Assistant</Typography>
-        </Box>
-        <IconButton
-          onClick={() => setAiChatOpen(false)}
-          aria-label="close"
-        >
-          <Close />
-        </IconButton>
-      </DialogTitle>
-      <DialogContent sx={{ p: 0, display: 'flex', flexDirection: 'column', height: '100%' }}>
-        <ChatInterface />
-      </DialogContent>
-    </Dialog>
       </motion.div>
     </>
   );
