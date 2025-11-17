@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { FileOpen, UploadFile } from '@mui/icons-material';
 import { AIChat } from '../components/ai/AIChat';
+import { ConversationSidebar } from '../components/ai/ConversationSidebar';
 import { documentService, type ReferenceDocument } from '../services/documentService';
 
 interface LocationState {
@@ -23,6 +24,9 @@ export const AIAssistantPage: React.FC = () => {
   const [documents, setDocuments] = useState<ReferenceDocument[]>([]);
   const [isLoadingDocs, setIsLoadingDocs] = useState(false);
   const [docError, setDocError] = useState<string | null>(null);
+  const [selectedConversationId, setSelectedConversationId] = useState<number | null>(
+    locationState.conversationId ?? null
+  );
 
   useEffect(() => {
     let mounted = true;
@@ -86,7 +90,7 @@ export const AIAssistantPage: React.FC = () => {
               </button>
             </div>
             {docError && <p className="mt-3 text-xs text-red-500">{docError}</p>}
-            <div className="mt-4 flex-1 overflow-y-auto pr-1">
+            <div className="mt-4 max-h-[200px] overflow-y-auto pr-1">
               {isLoadingDocs ? (
                 <p className="text-xs text-slate-500">Loading documents…</p>
               ) : (
@@ -112,13 +116,29 @@ export const AIAssistantPage: React.FC = () => {
                 </TransitionGroup>
               )}
             </div>
+            <div className="mt-6 border-t border-slate-200/50 pt-4 dark:border-slate-700">
+              <div className="flex h-[400px] flex-col overflow-hidden">
+                <ConversationSidebar
+                  selectedConversationId={selectedConversationId}
+                  onSelectConversation={(id) => {
+                    setSelectedConversationId(id);
+                  }}
+                  onNewConversation={() => {
+                    setSelectedConversationId(null);
+                  }}
+                />
+              </div>
+            </div>
           </div>
           <div className="md:col-span-2">
             <AIChat
               className="h-full"
               initialQuery={locationState.initialQuery}
-              initialConversationIdProp={locationState.conversationId ?? null}
+              initialConversationIdProp={selectedConversationId}
               navigateTo={navigate}
+              onConversationChange={(id) => {
+                setSelectedConversationId(id);
+              }}
         />
           </div>
         </div>

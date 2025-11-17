@@ -127,29 +127,42 @@ export const ConversationSidebar: React.FC<ConversationSidebarProps> = ({
     <>
       <Box
         sx={{
-          width: 300,
+          width: '100%',
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
-          borderRight: 1,
-          borderColor: 'divider',
-          bgcolor: 'background.paper',
+          bgcolor: 'transparent',
         }}
       >
         {/* Header */}
-        <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
+        <Box sx={{ p: 2, borderBottom: 1, borderColor: 'rgba(148, 163, 184, 0.3)' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-            <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography 
+              variant="body2" 
+              sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 1,
+                fontWeight: 600,
+                color: 'text.primary',
+                fontSize: '0.875rem'
+              }}
+            >
               <ChatIcon fontSize="small" />
               Conversations
             </Typography>
           </Box>
           <Button
             fullWidth
-            variant="contained"
+            variant="outlined"
             startIcon={<Add />}
             onClick={onNewConversation}
             size="small"
+            sx={{
+              mt: 1,
+              textTransform: 'none',
+              fontSize: '0.75rem',
+            }}
           >
             New Chat
           </Button>

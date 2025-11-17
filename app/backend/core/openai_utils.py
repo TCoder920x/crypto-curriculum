@@ -2,11 +2,14 @@
 from typing import Optional, Dict, Any
 import logging
 from openai import AsyncOpenAI
-from sqlalchemy import update, inspect
+from pathlib import Path
+from sqlalchemy import update, inspect, select, or_
 from sqlalchemy.exc import InvalidRequestError
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.backend.core.config import settings
 from app.backend.models.user import User
+from app.backend.models.document import Document
 
 logger = logging.getLogger(__name__)
 
@@ -82,16 +85,51 @@ async def get_or_create_user_assistant(user: User, db=None) -> str:
     return assistant.id
 
 
-async def get_or_create_user_vector_store(user: User) -> Optional[str]:
+async def get_or_create_user_vector_store(user: User, db: AsyncSession | None = None) -> Optional[str]:
     """
-    Get or create a user-specific vector store for RAG (optional feature).
+    Get or create a user-specific vector store for RAG.
     
     Returns:
-        Vector store ID or None if not using vector stores
+        Vector store ID or None if OpenAI is not configured
     """
-    # For now, we'll skip vector stores as they're optional
-    # Can be implemented later if needed for curriculum content retrieval
-    return None
+    try:
+        client = get_openai_client()
+    except ValueError as e:
+        logger.warning(f"Vector store unavailable: {e}")
+        return None
+
+    if user.openai_vector_store_id:
+        try:
+            store = await client.beta.vector_stores.retrieve(user.openai_vector_store_id)
+            return store.id
+        except Exception as e:
+            logger.warning(f"Vector store {user.openai_vector_store_id} missing, recreating: {e}")
+
+    vector_store = await client.beta.vector_stores.create(
+        name=f"{user.username or 'user'} reference library",
+        metadata={"user_id": str(user.id)},
+    )
+
+    user.openai_vector_store_id = vector_store.id
+    if db:
+        await db.execute(
+            update(User)
+            .where(User.id == user.id)
+            .values(openai_vector_store_id=vector_store.id)
+        )
+        await db.commit()
+        try:
+            user_state = inspect(user)
+            if user_state.persistent:
+                await db.refresh(user)
+            else:
+                refreshed_user = await db.get(User, user.id)
+                if refreshed_user:
+                    user.openai_vector_store_id = refreshed_user.openai_vector_store_id
+        except Exception as refresh_err:  # pragma: no cover
+            logger.warning(f"Unable to refresh user {user.id} after vector store creation: {refresh_err}")
+
+    return vector_store.id
 
 
 async def update_user_assistant_instructions(
@@ -174,6 +212,113 @@ async def get_assistant_for_user(user: User, db=None) -> str:
         raise ValueError(f"No assistant available. Error: {str(e)}. Please configure OPENAI_API_KEY. If using OPENAI_ASSISTANT_ID, ensure it exists in your OpenAI account.")
 
 
+async def _upload_file_to_openai(client: AsyncOpenAI, file_path: Path) -> Optional[str]:
+    """Upload a local file to OpenAI and return the file ID."""
+    if not file_path.exists():
+        logger.warning("Skipping upload; file missing at %s", file_path)
+        return None
+    try:
+        with file_path.open("rb") as handle:
+            uploaded = await client.files.create(file=handle, purpose="assistants")
+        return uploaded.id
+    except Exception as e:
+        logger.error("Failed to upload %s to OpenAI: %s", file_path, e)
+        return None
+
+
+async def update_vector_store(db: AsyncSession, user: User) -> Optional[str]:
+    """
+    Ensure the user's vector store is synchronized with stored documents.
+    
+    Returns:
+        The vector store ID if available, otherwise None.
+    """
+    vector_store_id = await get_or_create_user_vector_store(user, db)
+    if not vector_store_id:
+        return None
+
+    client = get_openai_client()
+
+    # Fetch documents visible to the user (their uploads + shared/standard)
+    try:
+        result = await db.execute(
+            select(Document)
+            .where(Document.is_deleted == False)  # noqa: E712
+            .where(or_(Document.uploader_id == user.id, Document.category == "standard"))
+        )
+        documents = result.scalars().all()
+    except Exception as e:
+        logger.warning("Unable to load documents for vector sync: %s", e)
+        return vector_store_id
+
+    # Check currently attached files
+    try:
+        vector_files = await client.beta.vector_stores.files.list(vector_store_id=vector_store_id, limit=1000)
+        attached_file_ids = {item.id for item in vector_files.data}
+    except Exception as e:
+        logger.warning("Unable to list files for vector store %s: %s", vector_store_id, e)
+        attached_file_ids = set()
+
+    desired_file_ids: set[str] = set()
+    dirty = False
+
+    for document in documents:
+        file_path = Path(document.storage_path)
+        if not file_path.exists():
+            logger.warning("Document %s missing on disk at %s", document.id, document.storage_path)
+            continue
+
+        file_id = document.openai_file_id
+
+        # If file already attached, mark as desired and continue
+        if file_id and file_id in attached_file_ids:
+            desired_file_ids.add(file_id)
+            continue
+
+        # If file exists in DB but not attached, try to reattach
+        if file_id:
+            try:
+                await client.beta.vector_stores.files.create(vector_store_id=vector_store_id, file_id=file_id)
+                desired_file_ids.add(file_id)
+                attached_file_ids.add(file_id)
+                continue
+            except Exception as e:
+                logger.warning("Reattaching OpenAI file %s failed: %s", file_id, e)
+
+        # Upload a fresh copy
+        uploaded_id = await _upload_file_to_openai(client, file_path)
+        if not uploaded_id:
+            continue
+
+        document.openai_file_id = uploaded_id
+        desired_file_ids.add(uploaded_id)
+        dirty = True
+
+        try:
+            await client.beta.vector_stores.files.create(vector_store_id=vector_store_id, file_id=uploaded_id)
+            attached_file_ids.add(uploaded_id)
+        except Exception as e:
+            logger.error(
+                "Unable to attach uploaded file %s to vector store %s: %s",
+                uploaded_id,
+                vector_store_id,
+                e,
+            )
+
+    # Remove stale files no longer tied to documents
+    stale_files = attached_file_ids - desired_file_ids
+    for file_id in stale_files:
+        try:
+            await client.beta.vector_stores.files.delete(vector_store_id=vector_store_id, file_id=file_id)
+        except Exception as e:
+            logger.warning("Failed to remove stale file %s from vector store %s: %s", file_id, vector_store_id, e)
+
+    if dirty:
+        await db.commit()
+
+    return vector_store_id
+
+
 async def cancel_active_run(thread_id: str, run_id: str) -> None:
     """
     Cancel an active OpenAI run.
@@ -208,4 +353,3 @@ async def list_active_runs(thread_id: str) -> list[Dict[str, Any]]:
     except Exception as e:
         logger.warning(f"Error listing runs for thread {thread_id}: {e}")
         return []
-

@@ -16,6 +16,7 @@ export interface AIChatProps {
   initialConversationIdProp?: number | null;
   navigateTo?: (path: string) => void;
   className?: string;
+  onConversationChange?: (conversationId: number | null) => void;
 }
 
 interface ChatBubble {
@@ -37,6 +38,7 @@ export const AIChat: React.FC<AIChatProps> = ({
   initialConversationIdProp,
   navigateTo,
   className,
+  onConversationChange,
 }) => {
   const { user } = useAuth();
   const [messages, setMessages] = useState<ChatBubble[]>(initialConversation ?? []);
@@ -102,6 +104,10 @@ export const AIChat: React.FC<AIChatProps> = ({
 
   const mapConversationMessages = useCallback((record: ConversationRecord): ChatBubble[] => {
     return record.messages.flatMap((entry) => {
+      const responseText =
+        entry.response ??
+        (entry as unknown as { assistant_response?: string | null }).assistant_response ??
+        '';
       const bubbles: ChatBubble[] = [
         {
           id: `${entry.id}-user`,
@@ -110,11 +116,11 @@ export const AIChat: React.FC<AIChatProps> = ({
           createdAt: entry.created_at,
         },
       ];
-      if (entry.response) {
+      if (responseText) {
         bubbles.push({
           id: `${entry.id}-ai`,
           sender: 'ai',
-          text: entry.response,
+          text: responseText,
           createdAt: entry.created_at,
         });
       }
@@ -126,9 +132,11 @@ export const AIChat: React.FC<AIChatProps> = ({
     async (id: number) => {
       try {
         const record = await aiService.getConversation(id);
-        setConversationId(record.id);
-        conversationIdRef.current = record.id;
+        const resolvedId = record.conversation_id ?? (record as unknown as { id?: number }).id ?? id;
+        setConversationId(resolvedId);
+        conversationIdRef.current = resolvedId;
         setMessages(mapConversationMessages(record));
+        onConversationChange?.(resolvedId);
       } catch (err) {
         console.warn('Unable to load conversation', err);
         setError('Unable to load the requested conversation.');
@@ -138,8 +146,10 @@ export const AIChat: React.FC<AIChatProps> = ({
   );
 
   useEffect(() => {
-    if (initialConversationIdProp) {
+    if (initialConversationIdProp !== null && initialConversationIdProp !== undefined) {
+      if (initialConversationIdProp !== conversationIdRef.current) {
       refreshConversation(initialConversationIdProp);
+      }
       return;
     }
     if (conversationIdRef.current) return;
@@ -147,8 +157,9 @@ export const AIChat: React.FC<AIChatProps> = ({
       try {
         const latest = await aiService.getLatestConversation();
         if (latest) {
-          conversationIdRef.current = latest.id;
-          setConversationId(latest.id);
+          const resolvedId = latest.conversation_id ?? (latest as unknown as { id?: number }).id ?? null;
+          conversationIdRef.current = resolvedId;
+          setConversationId(resolvedId);
           setMessages(mapConversationMessages(latest));
         }
       } catch (err) {
@@ -175,6 +186,7 @@ export const AIChat: React.FC<AIChatProps> = ({
     conversationIdRef.current = null;
     setInputValue('');
     setError(null);
+    onConversationChange?.(null);
   };
 
   const buildHistory = useCallback(
@@ -267,6 +279,7 @@ export const AIChat: React.FC<AIChatProps> = ({
       onNewConversationId: (nextId) => {
         setConversationId(nextId);
         conversationIdRef.current = nextId;
+        onConversationChange?.(nextId);
       },
     });
   };

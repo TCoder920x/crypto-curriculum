@@ -82,7 +82,20 @@ async def health_check():
 
 
 # Import and include routers
-from app.backend.api.v1.endpoints import auth, assessment, module, cohort, grading, forum, notification, ai_assistant, achievement, analytics, learning_resource
+from app.backend.api.v1.endpoints import (
+    auth,
+    assessment,
+    module,
+    cohort,
+    grading,
+    forum,
+    notification,
+    ai_assistant,
+    achievement,
+    analytics,
+    learning_resource,
+    documents,
+)
 
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["auth"])
 app.include_router(assessment.router, prefix="/api/v1", tags=["assessments"])
@@ -95,6 +108,7 @@ app.include_router(ai_assistant.router, prefix="/api/v1", tags=["ai-assistant"])
 app.include_router(achievement.router, prefix="/api/v1", tags=["achievements"])
 app.include_router(analytics.router, prefix="/api/v1", tags=["analytics"])
 app.include_router(learning_resource.router, prefix="/api/v1", tags=["learning-resources"])
+app.include_router(documents.router, prefix="/api/v1", tags=["documents"])
 
 
 if __name__ == "__main__":
@@ -106,4 +120,3 @@ if __name__ == "__main__":
         port=9000,  # Using port 9000 to avoid conflicts with other services
         reload=settings.DEBUG,
     )
-

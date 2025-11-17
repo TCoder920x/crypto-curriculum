@@ -48,6 +48,8 @@ class Settings(BaseSettings):
     # File Upload
     MAX_UPLOAD_SIZE_MB: int = 10
     ALLOWED_FILE_TYPES: str = "jpg,jpeg,png,pdf"
+    DOCUMENT_ALLOWED_TYPES: str = "pdf,docx,txt"
+    DOCUMENT_STORAGE_PATH: str = "storage/documents"
     
     class Config:
         env_file = ".env"
@@ -66,5 +68,4 @@ except Exception as e:
     os.environ.setdefault("DATABASE_URL", "postgresql+psycopg://postgres:postgres@localhost:5432/crypto_curriculum")
     os.environ.setdefault("SECRET_KEY", "dev-secret-key-change-in-production")
     settings = Settings()
-
 

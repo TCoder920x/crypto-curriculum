@@ -9,6 +9,7 @@ from app.backend.models.achievement import Achievement, UserAchievement, Leaderb
 from app.backend.models.notification import Notification, ChatMessage, LearningResource
 from app.backend.models.query_log import QueryLog
 from app.backend.models.thread_map import ThreadMap
+from app.backend.models.document import Document
 
 __all__ = [
     # User
@@ -46,6 +47,7 @@ __all__ = [
     # AI Chat
     "QueryLog",
     "ThreadMap",
+    # Documents
+    "Document",
 ]
-
 

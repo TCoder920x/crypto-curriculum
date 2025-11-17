@@ -22,14 +22,19 @@ export interface ConversationMessage {
   id: number;
   user_id: number;
   message: string;
-  response: string | null;
+  response?: string | null;
   created_at: string;
+  sender?: 'user' | 'assistant';
+  context?: Record<string, unknown>;
 }
 
 export interface ConversationRecord {
-  id: number;
+  conversation_id: number;
   messages: ConversationMessage[];
   title?: string;
+  last_message_at?: string | null;
+  message_count?: number;
+  created_at?: string;
 }
 
 export interface ConversationSummary {
@@ -48,7 +53,11 @@ interface ConversationListResponse {
 export const aiService = {
   async getConversation(conversationId: number): Promise<ConversationRecord> {
     const response = await apiClient.get(`/conversations/${conversationId}`);
-    return response.data;
+    const data = response.data;
+    return {
+      ...data,
+      conversation_id: data.conversation_id ?? data.id ?? conversationId,
+    };
   },
 
   async getLatestConversation(): Promise<ConversationRecord | null> {

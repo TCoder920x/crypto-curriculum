@@ -19,7 +19,8 @@ async def gather_user_context(
     user: User,
     db: AsyncSession,
     current_module_id: Optional[int] = None,
-    current_lesson_id: Optional[int] = None
+    current_lesson_id: Optional[int] = None,
+    extra_context: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     Gather user-specific learning context for AI assistant.
@@ -38,6 +39,9 @@ async def gather_user_context(
         "recent_assessments": [],
         "achievements": [],
         "recent_forum_activity": [],
+        "calendar_events": [],
+        "notes": [],
+        "assignments": [],
     }
     
     try:
@@ -154,6 +158,14 @@ async def gather_user_context(
             }
             for post in recent_posts
         ]
+
+        # Merge any additional context provided by the caller (e.g., LMS calendar/notes)
+        if extra_context:
+            context["calendar_events"] = extra_context.get("calendar_events", []) or extra_context.get("calendar", [])
+            context["notes"] = extra_context.get("notes", [])
+            context["assignments"] = extra_context.get("assignments", []) or extra_context.get("tasks", [])
+            if extra_context.get("additional_instructions"):
+                context["additional_instructions"] = extra_context["additional_instructions"]
         
     except Exception as e:
         logger.error(f"Error gathering user context for user {user.id}: {str(e)}")
@@ -231,11 +243,50 @@ def format_context_for_instructions(context: Dict[str, Any]) -> str:
         recent_achievements = achievements[:5]  # Show 5 most recent
         for ach in recent_achievements:
             parts.append(f"- {ach.get('name')}: {ach.get('description', '')}")
+
+    # Assignments
+    assignments = context.get("assignments", [])
+    if assignments:
+        parts.append(f"\n## Upcoming Assignments: {len(assignments)}")
+        for item in assignments[:5]:
+            if isinstance(item, dict):
+                title = item.get("title") or item.get("name") or "Assignment"
+                due = item.get("due_date") or item.get("due") or item.get("deadline")
+                parts.append(f"- {title}" + (f" (due {due})" if due else ""))
+            else:
+                parts.append(f"- {item}")
+
+    # Notes
+    notes = context.get("notes", [])
+    if notes:
+        parts.append(f"\n## Notes & Highlights: {len(notes)}")
+        for note in notes[:3]:
+            if isinstance(note, dict):
+                snippet = note.get("summary") or note.get("content") or note.get("text") or ""
+            else:
+                snippet = str(note)
+            trimmed = (snippet[:180] + "...") if len(snippet) > 180 else snippet
+            parts.append(f"- {trimmed}")
+
+    # Calendar events
+    calendar_events = context.get("calendar_events", [])
+    if calendar_events:
+        parts.append(f"\n## Calendar Events: {len(calendar_events)}")
+        for event in calendar_events[:5]:
+            if isinstance(event, dict):
+                title = event.get("title") or event.get("name") or "Event"
+                when = event.get("start") or event.get("date") or event.get("starts_at")
+                parts.append(f"- {title}" + (f" on {when}" if when else ""))
+            else:
+                parts.append(f"- {event}")
     
     # Forum activity
     forum_activity = context.get("recent_forum_activity", [])
     if forum_activity:
         parts.append(f"\n## Recent Forum Activity: {len(forum_activity)} posts")
+
+    if context.get("additional_instructions"):
+        parts.append("\n## Additional Context:")
+        parts.append(str(context.get("additional_instructions")))
     
     return "\n".join(parts)
-

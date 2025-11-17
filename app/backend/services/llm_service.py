@@ -9,7 +9,8 @@ from app.backend.core.openai_utils import (
     get_openai_client,
     get_assistant_for_user,
     cancel_active_run,
-    list_active_runs
+    list_active_runs,
+    update_vector_store,
 )
 from app.backend.core.chat_utils import (
     format_system_prompt_with_context,
@@ -93,7 +94,8 @@ async def send_message(
     conversation_id: int,
     current_module_id: Optional[int] = None,
     current_lesson_id: Optional[int] = None,
-    ip_address: Optional[str] = None
+    ip_address: Optional[str] = None,
+    context_payload: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     Send a message to the AI assistant and get response.
@@ -131,7 +133,8 @@ async def send_message(
             user,
             db,
             current_module_id=current_module_id,
-            current_lesson_id=current_lesson_id
+            current_lesson_id=current_lesson_id,
+            extra_context=context_payload,
         )
     except Exception as e:
         logger.error(f"Error gathering context: {e}")
@@ -139,6 +142,15 @@ async def send_message(
     
     # Format system prompt with context
     system_instructions = format_system_prompt_with_context(context)
+
+    # Sync vector store and prepare file search tool resources
+    tool_resources = None
+    try:
+        vector_store_id = await update_vector_store(db, user)
+        if vector_store_id:
+            tool_resources = {"file_search": {"vector_store_ids": [vector_store_id]}}
+    except Exception as e:
+        logger.warning(f"Vector store sync failed for user {user.id}: {e}")
     
     # Get user's assistant
     try:
@@ -160,11 +172,14 @@ async def send_message(
     
     # Create run with context in additional_instructions
     try:
-        run = await client.beta.threads.runs.create(
-            thread_id=thread_id,
-            assistant_id=assistant_id,
-            additional_instructions=system_instructions
-        )
+        run_params: Dict[str, Any] = {
+            "thread_id": thread_id,
+            "assistant_id": assistant_id,
+            "additional_instructions": system_instructions,
+        }
+        if tool_resources:
+            run_params["tool_resources"] = tool_resources
+        run = await client.beta.threads.runs.create(**run_params)
     except Exception as e:
         logger.error(f"Failed to create run for thread {thread_id}: {e}")
         raise Exception(f"Failed to start AI conversation: {str(e)}")
@@ -229,7 +244,8 @@ async def send_message_stream(
     conversation_id: int,
     current_module_id: Optional[int] = None,
     current_lesson_id: Optional[int] = None,
-    ip_address: Optional[str] = None
+    ip_address: Optional[str] = None,
+    context_payload: Optional[Dict[str, Any]] = None,
 ) -> AsyncGenerator[str, None]:
     """
     Send a message and stream the response.
@@ -254,7 +270,8 @@ async def send_message_stream(
             user,
             db,
             current_module_id=current_module_id,
-            current_lesson_id=current_lesson_id
+            current_lesson_id=current_lesson_id,
+            extra_context=context_payload,
         )
     except Exception as e:
         logger.error(f"Error gathering context: {e}")
@@ -262,6 +279,15 @@ async def send_message_stream(
     
     # Format system prompt
     system_instructions = format_system_prompt_with_context(context)
+
+    # Sync vector store and prepare file-search tool resources
+    tool_resources = None
+    try:
+        vector_store_id = await update_vector_store(db, user)
+        if vector_store_id:
+            tool_resources = {"file_search": {"vector_store_ids": [vector_store_id]}}
+    except Exception as e:
+        logger.warning(f"Vector store sync failed for user {user.id}: {e}")
     
     # Get assistant
     assistant_id = await get_assistant_for_user(user, db)
@@ -274,11 +300,15 @@ async def send_message_stream(
     )
     
     # Create run
-    run = await client.beta.threads.runs.create(
-        thread_id=thread_id,
-        assistant_id=assistant_id,
-        additional_instructions=system_instructions
-    )
+    run_args: Dict[str, Any] = {
+        "thread_id": thread_id,
+        "assistant_id": assistant_id,
+        "additional_instructions": system_instructions,
+    }
+    if tool_resources:
+        run_args["tool_resources"] = tool_resources
+
+    run = await client.beta.threads.runs.create(**run_args)
     
     # Stream response
     import asyncio
@@ -327,4 +357,3 @@ async def send_message_stream(
     except Exception as e:
         logger.error(f"Error logging query: {e}")
         await db.rollback()
-
