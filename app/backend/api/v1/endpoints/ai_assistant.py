@@ -6,7 +6,7 @@ from sqlalchemy import select, func, desc, and_, delete
 from typing import Optional
 import logging
 import json
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 from app.backend.core.database import get_db
 from app.backend.core.security import get_current_user
@@ -35,6 +35,7 @@ def generate_conversation_id() -> int:
     return int(datetime.now().timestamp() * 1000) % (10 ** 9)  # 9-digit ID
 
 
+@router.post("/chat", response_model=ChatMessageResponse, status_code=status.HTTP_201_CREATED)
 @router.post("/ai-assistant/chat", response_model=ChatMessageResponse, status_code=status.HTTP_201_CREATED)
 async def chat_with_assistant(
     chat_data: ChatMessageCreate,
@@ -119,6 +120,7 @@ async def chat_with_assistant(
         )
 
 
+@router.post("/chat/stream")
 @router.post("/ai-assistant/chat/stream")
 async def chat_with_assistant_stream(
     chat_data: ChatMessageCreate,
@@ -199,6 +201,7 @@ async def chat_with_assistant_stream(
             headers={
                 "Cache-Control": "no-cache",
                 "Connection": "keep-alive",
+                "X-Conversation-Id": str(conversation_id),
             }
         )
         
@@ -210,6 +213,7 @@ async def chat_with_assistant_stream(
         )
 
 
+@router.get("/conversations", response_model=ConversationListResponse)
 @router.get("/ai-assistant/conversations", response_model=ConversationListResponse)
 async def get_conversations(
     limit: int = 50,
@@ -270,6 +274,7 @@ async def get_conversations(
     )
 
 
+@router.get("/conversations/{conversation_id}", response_model=ConversationDetailResponse)
 @router.get("/ai-assistant/conversations/{conversation_id}", response_model=ConversationDetailResponse)
 async def get_conversation(
     conversation_id: int,
@@ -328,6 +333,7 @@ async def get_conversation(
     )
 
 
+@router.delete("/conversations/{conversation_id}", status_code=status.HTTP_204_NO_CONTENT)
 @router.delete("/ai-assistant/conversations/{conversation_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_conversation(
     conversation_id: int,
@@ -381,6 +387,7 @@ async def delete_conversation(
         )
 
 
+@router.patch("/conversations/{conversation_id}/title", response_model=ConversationResponse)
 @router.patch("/ai-assistant/conversations/{conversation_id}/title", response_model=ConversationResponse)
 async def update_conversation_title(
     conversation_id: int,
@@ -435,6 +442,7 @@ async def update_conversation_title(
     )
 
 
+@router.get("/chat/history", response_model=ChatHistoryResponse)
 @router.get("/ai-assistant/history", response_model=ChatHistoryResponse)
 async def get_chat_history(
     limit: int = 50,

@@ -53,7 +53,7 @@ export interface ConversationTitleUpdate {
 export const aiAssistantService = {
   /** Send a message to the AI assistant (non-streaming) */
   sendMessage: async (messageData: ChatMessageCreate): Promise<ChatMessage> => {
-    const response = await apiClient.post('/ai-assistant/chat', messageData);
+    const response = await apiClient.post('/chat', messageData);
     return response.data;
   },
 
@@ -70,7 +70,7 @@ export const aiAssistantService = {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${apiClient.defaults.baseURL}/ai-assistant/chat/stream`, {
+    const response = await fetch(`${apiClient.defaults.baseURL}/chat/stream`, {
       method: 'POST',
       headers,
       body: JSON.stringify(messageData),
@@ -119,13 +119,13 @@ export const aiAssistantService = {
     if (conversationId) {
       params.conversation_id = conversationId;
     }
-    const response = await apiClient.get('/ai-assistant/history', { params });
+    const response = await apiClient.get('/chat/history', { params });
     return response.data;
   },
 
   /** Get list of all conversations */
   getConversations: async (limit: number = 50, offset: number = 0): Promise<ConversationListResponse> => {
-    const response = await apiClient.get('/ai-assistant/conversations', {
+    const response = await apiClient.get('/conversations', {
       params: { limit, offset },
     });
     return response.data;
@@ -133,13 +133,13 @@ export const aiAssistantService = {
 
   /** Get conversation details with messages */
   getConversation: async (conversationId: number): Promise<ConversationDetail> => {
-    const response = await apiClient.get(`/ai-assistant/conversations/${conversationId}`);
+    const response = await apiClient.get(`/conversations/${conversationId}`);
     return response.data;
   },
 
   /** Delete a conversation */
   deleteConversation: async (conversationId: number): Promise<void> => {
-    await apiClient.delete(`/ai-assistant/conversations/${conversationId}`);
+    await apiClient.delete(`/conversations/${conversationId}`);
   },
 
   /** Update conversation title */
@@ -147,7 +147,7 @@ export const aiAssistantService = {
     conversationId: number,
     title: string
   ): Promise<Conversation> => {
-    const response = await apiClient.patch(`/ai-assistant/conversations/${conversationId}/title`, {
+    const response = await apiClient.patch(`/conversations/${conversationId}/title`, {
       title,
     });
     return response.data;

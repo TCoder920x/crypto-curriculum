@@ -9,6 +9,7 @@ export interface User {
   is_verified: boolean;
   last_login: string | null;
   created_at: string;
+  subscription_status?: 'free' | 'pro' | 'enterprise';
 }
 
 export interface LoginCredentials {

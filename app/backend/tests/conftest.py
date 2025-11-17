@@ -1,8 +1,15 @@
 """Pytest configuration and fixtures"""
+import sys
+from pathlib import Path
+
 import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.pool import StaticPool
+
+ROOT_DIR = Path(__file__).resolve().parents[3]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
 
 from app.backend.core.database import Base, get_db
 from app.backend.main import app
@@ -104,9 +111,20 @@ async def test_token(test_user: User):
     return create_access_token(data={"sub": str(test_user.id)})
 
 
+@pytest.fixture(autouse=True)
+def _apply_db_override(db_session: AsyncSession):
+    """Automatically override get_db dependency for all tests."""
+    async def _get_db():
+        yield db_session
+
+    app.dependency_overrides[get_db] = _get_db
+    yield
+    app.dependency_overrides.pop(get_db, None)
+
+
 @pytest.fixture
 def override_get_db(db_session: AsyncSession):
-    """Override get_db dependency"""
+    """Expose override for compatibility with existing tests."""
     async def _get_db():
         yield db_session
     return _get_db
