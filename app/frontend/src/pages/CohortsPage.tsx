@@ -48,7 +48,7 @@ function TabPanel(props: TabPanelProps) {
       aria-labelledby={`cohort-tab-${index}`}
       {...other}
     >
-      {value === index && <Box sx={{ py: 3 }}>{children}</Box>}
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
     </div>
   );
 }

@@ -3,6 +3,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppBar, Toolbar, Box, Typography, IconButton, Avatar, Badge, Menu, MenuItem, Divider, ListItemIcon, Tooltip, Dialog, DialogContent, DialogTitle, Button } from '@mui/material';
 import { School, Logout, Brightness4, Brightness7, Notifications, Settings, Person, SmartToy, Close } from '@mui/icons-material';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import { useThemeMode } from '../../contexts/ThemeContext';
 import { ChatInterface } from '../ai/ChatInterface';
@@ -12,6 +13,11 @@ export const Navigation: React.FC = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { mode, toggleTheme } = useThemeMode();
+  
+  // Scroll-based animations
+  const { scrollY } = useScroll();
+  const navHeight = useTransform(scrollY, [0, 100], [64, 56]);
+  const navOpacity = useTransform(scrollY, [0, 100], [1, 0.95]);
 
   // Header menus state
   const [profileAnchorEl, setProfileAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -56,13 +62,26 @@ export const Navigation: React.FC = () => {
 
   return (
     <>
+      <motion.div
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 1200,
+          width: '100%',
+          height: navHeight,
+          opacity: navOpacity,
+        }}
+      >
       <AppBar 
-        position="sticky" 
+          position="static" 
+          className="glass-nav"
         sx={{ 
-          backgroundColor: mode === 'light' ? '#ffffff' : '#0a0e27',
-          borderBottom: mode === 'light' ? '1px solid rgba(0, 0, 0, 0.1)' : '1px solid rgba(255, 255, 255, 0.1)',
+            backgroundColor: 'transparent',
+            backgroundImage: 'none',
+            borderBottom: mode === 'light' ? '1px solid rgba(255, 255, 255, 0.3)' : '1px solid rgba(255, 255, 255, 0.1)',
           boxShadow: 'none',
-          zIndex: (theme) => theme.zIndex.drawer + 1,
+            backdropFilter: 'blur(24px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(24px) saturate(180%)',
           width: '100%',
         }}
       >
@@ -113,12 +132,18 @@ export const Navigation: React.FC = () => {
                   onClick={() => setAiChatOpen(true)}
                   sx={{
                     color: mode === 'light' ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.7)',
+                    minWidth: '44px',
+                    minHeight: '44px',
                     '&:hover': {
                       color: mode === 'light' ? '#1976d2' : '#ffffff',
                       backgroundColor: mode === 'light' ? 'rgba(25, 118, 210, 0.1)' : 'rgba(255, 255, 255, 0.1)',
                     },
+                    '&:focus-visible': {
+                      outline: `2px solid ${mode === 'dark' ? 'rgba(77, 171, 247, 0.8)' : 'rgba(25, 118, 210, 0.8)'}`,
+                      outlineOffset: '2px',
+                    },
                   }}
-                  aria-label="AI assistant"
+                  aria-label="AI Learning Assistant"
                 >
                   <SmartToy />
                 </IconButton>
@@ -131,12 +156,18 @@ export const Navigation: React.FC = () => {
                 onClick={toggleTheme}
                 sx={{
                   color: mode === 'light' ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.7)',
+                  minWidth: '44px',
+                  minHeight: '44px',
                   '&:hover': {
                     color: mode === 'light' ? '#1976d2' : '#ffffff',
                     backgroundColor: mode === 'light' ? 'rgba(25, 118, 210, 0.1)' : 'rgba(255, 255, 255, 0.1)',
                   },
+                  '&:focus-visible': {
+                    outline: `2px solid ${mode === 'dark' ? 'rgba(77, 171, 247, 0.8)' : 'rgba(25, 118, 210, 0.8)'}`,
+                    outlineOffset: '2px',
+                  },
                 }}
-                aria-label="toggle theme"
+                aria-label="Toggle theme"
               >
                 {mode === 'dark' ? <Brightness7 /> : <Brightness4 />}
               </IconButton>
@@ -148,12 +179,18 @@ export const Navigation: React.FC = () => {
                 onClick={(e) => setNotifAnchorEl(e.currentTarget)}
                 sx={{
                   color: mode === 'light' ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.7)',
+                  minWidth: '44px',
+                  minHeight: '44px',
                   '&:hover': {
                     color: mode === 'light' ? '#1976d2' : '#ffffff',
                     backgroundColor: mode === 'light' ? 'rgba(25, 118, 210, 0.1)' : 'rgba(255, 255, 255, 0.1)',
                   },
+                  '&:focus-visible': {
+                    outline: `2px solid ${mode === 'dark' ? 'rgba(77, 171, 247, 0.8)' : 'rgba(25, 118, 210, 0.8)'}`,
+                    outlineOffset: '2px',
+                  },
                 }}
-                aria-label="notifications"
+                aria-label="Notifications"
               >
                 <Badge color="error" badgeContent={unreadCount} overlap="circular">
                   <Notifications />
@@ -206,8 +243,14 @@ export const Navigation: React.FC = () => {
                   borderRadius: '50%',
                   border: mode === 'light' ? '1px solid rgba(0,0,0,0.08)' : '1px solid rgba(255,255,255,0.12)',
                   flexShrink: 0,
+                  minWidth: '44px',
+                  minHeight: '44px',
+                  '&:focus-visible': {
+                    outline: `2px solid ${mode === 'dark' ? 'rgba(77, 171, 247, 0.8)' : 'rgba(25, 118, 210, 0.8)'}`,
+                    outlineOffset: '2px',
+                  },
                 }}
-                aria-label="account"
+                aria-label="Account menu"
               >
                 <Avatar
                   sx={{
@@ -289,6 +332,7 @@ export const Navigation: React.FC = () => {
         <ChatInterface />
       </DialogContent>
     </Dialog>
+      </motion.div>
     </>
   );
 };

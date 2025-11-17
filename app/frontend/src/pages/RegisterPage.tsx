@@ -103,7 +103,13 @@ export const RegisterPage: React.FC = () => {
           </Box>
 
           {error && (
-            <Alert severity="error" className="mb-4">
+            <Alert 
+              severity="error" 
+              className="mb-4"
+              role="alert"
+              aria-live="polite"
+              id="register-error"
+            >
               {typeof error === 'string' ? error : JSON.stringify(error)}
             </Alert>
           )}
@@ -119,6 +125,8 @@ export const RegisterPage: React.FC = () => {
               required
               autoComplete="email"
               autoFocus
+              aria-label="Email address"
+              aria-required="true"
             />
 
             <TextField
@@ -131,6 +139,9 @@ export const RegisterPage: React.FC = () => {
               required
               autoComplete="new-password"
               helperText="Must be at least 8 characters"
+              aria-label="Password"
+              aria-required="true"
+              aria-describedby="password-helper"
             />
 
             <TextField
@@ -142,6 +153,8 @@ export const RegisterPage: React.FC = () => {
               onChange={handleChange}
               required
               autoComplete="new-password"
+              aria-label="Confirm password"
+              aria-required="true"
             />
 
             <TextField
@@ -151,6 +164,7 @@ export const RegisterPage: React.FC = () => {
               value={formData.username}
               onChange={handleChange}
               autoComplete="username"
+              aria-label="Username (optional)"
             />
 
             <TextField
@@ -160,6 +174,7 @@ export const RegisterPage: React.FC = () => {
               value={formData.full_name}
               onChange={handleChange}
               autoComplete="name"
+              aria-label="Full name (optional)"
             />
 
             <TextField
@@ -170,6 +185,8 @@ export const RegisterPage: React.FC = () => {
               value={formData.role}
               onChange={handleChange}
               required
+              aria-label="User role"
+              aria-required="true"
             >
               <MenuItem value="student">Student</MenuItem>
               <MenuItem value="instructor">Instructor</MenuItem>

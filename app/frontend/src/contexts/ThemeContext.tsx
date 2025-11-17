@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 
-type ThemeMode = 'light' | 'dark';
+export type ThemeMode = 'light' | 'dark';
 
 interface ThemeContextType {
   mode: ThemeMode;
@@ -67,6 +67,33 @@ export const ThemeContextProvider: React.FC<ThemeContextProviderProps> = ({ chil
         },
         typography: {
           fontFamily: 'Inter, system-ui, Avenir, Helvetica, Arial, sans-serif',
+        },
+        // Glass effect tokens
+        glass: {
+          surface: {
+            background: mode === 'light' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(22, 27, 34, 0.7)',
+            border: mode === 'light' ? 'rgba(255, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.1)',
+            blur: '20px',
+            saturation: '180%',
+          },
+          card: {
+            background: mode === 'light' ? 'rgba(255, 255, 255, 0.75)' : 'rgba(22, 27, 34, 0.75)',
+            border: mode === 'light' ? 'rgba(255, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.1)',
+            blur: '20px',
+            saturation: '180%',
+          },
+          button: {
+            background: mode === 'light' ? 'rgba(255, 255, 255, 0.6)' : 'rgba(22, 27, 34, 0.6)',
+            border: mode === 'light' ? 'rgba(255, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.1)',
+            blur: '16px',
+            saturation: '180%',
+          },
+          nav: {
+            background: mode === 'light' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(10, 14, 39, 0.8)',
+            border: mode === 'light' ? 'rgba(255, 255, 255, 0.3)' : 'rgba(255, 255, 255, 0.1)',
+            blur: '24px',
+            saturation: '180%',
+          },
         },
       }),
     [mode]

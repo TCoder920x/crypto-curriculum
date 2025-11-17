@@ -119,7 +119,9 @@ def load_modules_from_outline(path: Path) -> List[Dict[str, object]]:
 
         if current is not None and line:
             # Remove a single leading bullet marker but keep markdown emphasis (e.g., **bold**)
+            # Also remove blockquote markers (>) to prevent them from being rendered as blockquotes
             cleaned = re.sub(r"^[-*•]\s+", "", line)
+            cleaned = re.sub(r"^>\s+", "", cleaned)
             if cleaned:
                 summary_lines.append(cleaned)
 

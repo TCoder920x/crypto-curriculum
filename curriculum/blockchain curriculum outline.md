@@ -120,7 +120,7 @@ For the technical portions (Parts 3 & 4), you'll be encouraged to:
     - **The Solution:** L2s (Rollups, Sidechains). *Analogy: A carpool lane for transactions.*
 
 ## Module 4: Tokens & Digital Assets
-> NOTE: DIFFERENCE BETWEEN A COIN AND A TOKEN…
+NOTE: DIFFERENCE BETWEEN A COIN AND A TOKEN…
 
 - **Tokenomics:** The economics of a token (supply, demand, minting, burning).
 - **Token Types:** Utility tokens (access) vs. Governance tokens (voting).

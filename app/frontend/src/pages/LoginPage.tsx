@@ -63,7 +63,13 @@ export const LoginPage: React.FC = () => {
           </Box>
 
           {error && (
-            <Alert severity="error" className="mb-4">
+            <Alert 
+              severity="error" 
+              className="mb-4"
+              role="alert"
+              aria-live="polite"
+              id="login-error"
+            >
               {error}
             </Alert>
           )}
@@ -78,6 +84,11 @@ export const LoginPage: React.FC = () => {
               required
               autoComplete="email"
               autoFocus
+              aria-label="Email address"
+              aria-required="true"
+              inputProps={{
+                'aria-describedby': error ? 'email-error' : undefined,
+              }}
             />
 
             <TextField
@@ -88,6 +99,11 @@ export const LoginPage: React.FC = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
               autoComplete="current-password"
+              aria-label="Password"
+              aria-required="true"
+              inputProps={{
+                'aria-describedby': error ? 'password-error' : undefined,
+              }}
             />
 
             <Button

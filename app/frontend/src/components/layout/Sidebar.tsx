@@ -82,6 +82,7 @@ export const Sidebar: React.FC = () => {
                   mx: 1,
                   mb: 0.5,
                   borderRadius: 2,
+                  minHeight: '44px',
                   '&.Mui-selected': {
                     backgroundColor:
                       mode === 'light'
@@ -101,7 +102,12 @@ export const Sidebar: React.FC = () => {
                         ? 'rgba(0, 0, 0, 0.04)'
                         : 'rgba(255, 255, 255, 0.08)',
                   },
+                  '&:focus-visible': {
+                    outline: `2px solid ${mode === 'dark' ? 'rgba(77, 171, 247, 0.8)' : 'rgba(25, 118, 210, 0.8)'}`,
+                    outlineOffset: '2px',
+                  },
                 }}
+                aria-label={`Navigate to ${item.label}`}
               >
                 <ListItemIcon
                   sx={{
@@ -135,6 +141,7 @@ export const Sidebar: React.FC = () => {
     <>
       {/* Desktop Sidebar - Fixed */}
       <Box
+        className="glass-nav"
         sx={{
           display: { xs: 'none', md: 'block' },
           position: 'fixed',
@@ -142,10 +149,12 @@ export const Sidebar: React.FC = () => {
           top: 64,
           width: DRAWER_WIDTH,
           height: 'calc(100vh - 64px)',
-          backgroundColor: mode === 'light' ? '#ffffff' : '#0a0e27',
+          backgroundColor: 'transparent',
+          backdropFilter: 'blur(24px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(180%)',
           borderRight:
             mode === 'light'
-              ? '1px solid rgba(0, 0, 0, 0.1)'
+              ? '1px solid rgba(255, 255, 255, 0.3)'
               : '1px solid rgba(255, 255, 255, 0.1)',
           zIndex: (theme) => theme.zIndex.drawer,
           overflow: 'hidden',
@@ -188,7 +197,13 @@ export const SidebarMenuButton: React.FC = () => {
         sx={{
           '& .MuiDrawer-paper': {
             width: DRAWER_WIDTH,
-            backgroundColor: mode === 'light' ? '#ffffff' : '#0a0e27',
+            backgroundColor: 'transparent',
+            backdropFilter: 'blur(24px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+            borderRight:
+              mode === 'light'
+                ? '1px solid rgba(255, 255, 255, 0.3)'
+                : '1px solid rgba(255, 255, 255, 0.1)',
           },
         }}
       >
@@ -284,6 +299,7 @@ const SidebarContent: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
                   mx: 1,
                   mb: 0.5,
                   borderRadius: 2,
+                  minHeight: '44px',
                   '&.Mui-selected': {
                     backgroundColor:
                       mode === 'light'
@@ -303,7 +319,12 @@ const SidebarContent: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
                         ? 'rgba(0, 0, 0, 0.04)'
                         : 'rgba(255, 255, 255, 0.08)',
                   },
+                  '&:focus-visible': {
+                    outline: `2px solid ${mode === 'dark' ? 'rgba(77, 171, 247, 0.8)' : 'rgba(25, 118, 210, 0.8)'}`,
+                    outlineOffset: '2px',
+                  },
                 }}
+                aria-label={`Navigate to ${item.label}`}
               >
                 <ListItemIcon
                   sx={{

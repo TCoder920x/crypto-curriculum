@@ -29,7 +29,15 @@ body {
   margin: 0 auto;
 }
 
-/* Glass surface effect */
+/* Concentric geometry - consistent border radius scale */
+:root {
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+}
+
+/* Glass surface effect - base utility */
 .glass-surface {
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(20px) saturate(180%);
@@ -39,6 +47,7 @@ body {
     0 8px 32px 0 rgba(0, 0, 0, 0.1),
     inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: var(--radius-md);
 }
 
 /* Dark mode glass */
@@ -58,6 +67,146 @@ body {
   box-shadow: 
     0 12px 48px 0 rgba(0, 0, 0, 0.15),
     inset 0 1px 0 0 rgba(255, 255, 255, 0.6);
+}
+
+.dark .glass-surface:hover {
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  box-shadow: 
+    0 12px 48px 0 rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Glass card - for card components */
+.glass-card {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 8px 32px 0 rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: var(--radius-lg);
+}
+
+.dark .glass-card {
+  background: rgba(22, 27, 34, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 8px 32px 0 rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+}
+
+.glass-card:hover {
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 12px 48px 0 rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.6);
+}
+
+.dark .glass-card:hover {
+  box-shadow: 
+    0 12px 48px 0 rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Glass button - for buttons */
+.glass-button {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 4px 16px 0 rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: var(--radius-md);
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.dark .glass-button {
+  background: rgba(22, 27, 34, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 4px 16px 0 rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+}
+
+.glass-button:hover {
+  backdrop-filter: blur(20px) saturate(200%);
+  -webkit-backdrop-filter: blur(20px) saturate(200%);
+  transform: translateY(-1px);
+  box-shadow: 
+    0 6px 24px 0 rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.6);
+}
+
+.dark .glass-button:hover {
+  box-shadow: 
+    0 6px 24px 0 rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+}
+
+.glass-button:active {
+  transform: translateY(0);
+}
+
+/* Glass nav - for navigation elements */
+.glass-nav {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 8px 32px 0 rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark .glass-nav {
+  background: rgba(10, 14, 39, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 8px 32px 0 rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Focus indicators for accessibility */
+.glass-surface:focus-visible,
+.glass-card:focus-visible,
+.glass-button:focus-visible,
+.glass-nav:focus-visible {
+  outline: 2px solid rgba(25, 118, 210, 0.8);
+  outline-offset: 2px;
+}
+
+.dark .glass-surface:focus-visible,
+.dark .glass-card:focus-visible,
+.dark .glass-button:focus-visible,
+.dark .glass-nav:focus-visible {
+  outline: 2px solid rgba(77, 171, 247, 0.8);
+  outline-offset: 2px;
+}
+
+/* Skip navigation link for accessibility */
+.skip-nav-link {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  background: rgba(25, 118, 210, 0.9);
+  color: white;
+  padding: 12px 24px;
+  text-decoration: none;
+  z-index: 10000;
+  border-radius: var(--radius-md);
+}
+
+.skip-nav-link:focus {
+  top: 0;
 }
 
 

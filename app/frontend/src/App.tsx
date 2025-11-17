@@ -1,25 +1,30 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
+import { Suspense, lazy } from 'react'
 import { Box } from '@mui/material'
 import { ThemeContextProvider, useThemeMode } from './contexts/ThemeContext'
 import { ProtectedRoute } from './components/auth/ProtectedRoute'
 import { Navigation } from './components/layout/Navigation'
 import { Sidebar } from './components/layout/Sidebar'
 import { Footer } from './components/layout/Footer'
+import { PageSkeleton } from './components/common/LoadingSkeleton'
 import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
-import { HomePage } from './pages/HomePage'
-import { ModulesListPage } from './pages/ModulesListPage'
-import { AssessmentsListPage } from './pages/AssessmentsListPage'
-import { ModulePage } from './pages/ModulePage'
-import { AssessmentPage } from './pages/AssessmentPage'
-import { ProgressPage } from './pages/ProgressPage'
-import { ProfileSettingsPage } from './pages/ProfileSettingsPage'
-import { InstructorDashboardPage } from './pages/InstructorDashboardPage'
-import { CohortsPage } from './pages/CohortsPage'
-import { ForumPage } from './pages/ForumPage'
-import { ForumPostPage } from './pages/ForumPostPage'
-import { AIAssistantPage } from './pages/AIAssistantPage'
 import './App.css'
+
+// Lazy load page components for code splitting
+const HomePage = lazy(() => import('./pages/HomePage').then(m => ({ default: m.HomePage })))
+const ModulesListPage = lazy(() => import('./pages/ModulesListPage').then(m => ({ default: m.ModulesListPage })))
+const AssessmentsListPage = lazy(() => import('./pages/AssessmentsListPage').then(m => ({ default: m.AssessmentsListPage })))
+const ModulePage = lazy(() => import('./pages/ModulePage').then(m => ({ default: m.ModulePage })))
+const AssessmentPage = lazy(() => import('./pages/AssessmentPage').then(m => ({ default: m.AssessmentPage })))
+const ProgressPage = lazy(() => import('./pages/ProgressPage').then(m => ({ default: m.ProgressPage })))
+const ProfileSettingsPage = lazy(() => import('./pages/ProfileSettingsPage').then(m => ({ default: m.ProfileSettingsPage })))
+const InstructorDashboardPage = lazy(() => import('./pages/InstructorDashboardPage').then(m => ({ default: m.InstructorDashboardPage })))
+const CohortsPage = lazy(() => import('./pages/CohortsPage').then(m => ({ default: m.CohortsPage })))
+const ForumPage = lazy(() => import('./pages/ForumPage').then(m => ({ default: m.ForumPage })))
+const ForumPostPage = lazy(() => import('./pages/ForumPostPage').then(m => ({ default: m.ForumPostPage })))
+const AIAssistantPage = lazy(() => import('./pages/AIAssistantPage').then(m => ({ default: m.AIAssistantPage })))
+const AccessibilityPage = lazy(() => import('./pages/AccessibilityPage').then(m => ({ default: m.AccessibilityPage })))
 
 function AppContent() {
   const { mode } = useThemeMode();
@@ -34,6 +39,7 @@ function AppContent() {
           element={
             <ProtectedRoute>
             <Box sx={{ minHeight: '100vh', backgroundColor, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <a href="#main-content" className="skip-nav-link">Skip to main content</a>
                 <Navigation />
                 <Box sx={{ flexGrow: 1, minWidth: 0, overflow: 'hidden', position: 'relative' }}>
                   <Sidebar />
@@ -51,7 +57,8 @@ function AppContent() {
                       ml: { xs: 0, md: '240px' },
                     }}
                   >
-                    <Box sx={{ flexGrow: 1, pb: 4 }}>
+                    <Box id="main-content" sx={{ flexGrow: 1, pb: 4 }} role="main">
+                      <Suspense fallback={<PageSkeleton />}>
                       <Routes>
                         <Route path="/" element={<HomePage />} />
                         <Route path="/modules" element={<ModulesListPage />} />
@@ -66,8 +73,10 @@ function AppContent() {
                         <Route path="/modules/:moduleId/forums" element={<ForumPage />} />
                         <Route path="/modules/:moduleId/forums/posts/:postId" element={<ForumPostPage />} />
                         <Route path="/ai-assistant" element={<AIAssistantPage />} />
+                          <Route path="/accessibility" element={<AccessibilityPage />} />
                         <Route path="*" element={<Navigate to="/" replace />} />
                       </Routes>
+                      </Suspense>
                     </Box>
                     <Footer />
                   </Box>
