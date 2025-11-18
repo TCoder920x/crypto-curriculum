@@ -14,7 +14,8 @@ from app.backend.core.openai_utils import (
 )
 from app.backend.core.chat_utils import (
     format_system_prompt_with_context,
-    sanitize_message
+    sanitize_message,
+    format_citations_in_response
 )
 from app.backend.services.context_service import gather_user_context
 from app.backend.models.user import User
@@ -270,6 +271,13 @@ async def send_message(
         logger.warning(f"No response text found for thread {thread_id}, run {run.id}")
         response_text = "I apologize, but I couldn't generate a response. Please try again."
     
+    # Format citations in response
+    try:
+        response_text = await format_citations_in_response(response_text, db)
+    except Exception as e:
+        logger.error(f"Error formatting citations: {e}", exc_info=True)
+        # Continue with unformatted response if citation formatting fails
+    
     # Log query
     try:
         query_log = QueryLog(
@@ -386,10 +394,17 @@ async def send_message_stream(
                 if message.content:
                     for content in message.content:
                         if content.type == "text":
-                            remaining = content.text.value[len(full_response):]
-                            if remaining:
-                                yield remaining
-                                full_response = content.text.value
+                            raw_response = content.text.value
+                            # Format citations in the full response
+                            try:
+                                formatted_response = await format_citations_in_response(raw_response, db)
+                            except Exception as e:
+                                logger.error(f"Error formatting citations in stream: {e}", exc_info=True)
+                                formatted_response = raw_response
+                            # Yield the formatted response (since we're not actually streaming incrementally)
+                            if formatted_response and formatted_response != full_response:
+                                yield formatted_response
+                            full_response = formatted_response
             break
         elif run_status.status in ["failed", "cancelled", "expired"]:
             error_msg = f"Run {run_status.status}: {run_status.last_error.message if run_status.last_error else 'Unknown error'}"

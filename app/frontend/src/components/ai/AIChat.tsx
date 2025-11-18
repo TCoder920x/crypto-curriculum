@@ -431,8 +431,8 @@ export const AIChat: React.FC<AIChatProps> = ({
   );
 
   return (
-    <div className={clsx('flex h-full flex-col rounded-3xl border border-white/20 bg-white/70 shadow-2xl backdrop-blur-xl dark:border-slate-700 dark:bg-slate-900/60', className)}>
-      <div className="flex items-center justify-between border-b border-white/40 px-4 py-3 dark:border-slate-700/70">
+    <div className={clsx('flex h-full min-h-0 flex-col overflow-hidden rounded-3xl border border-white/20 bg-white/70 shadow-2xl backdrop-blur-xl dark:border-slate-700 dark:bg-slate-900/60', className)}>
+      <div className="flex flex-shrink-0 items-center justify-between border-b border-white/40 px-4 py-3 dark:border-slate-700/70">
         <div className="flex w-full items-center justify-end gap-3">
           <button
             className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200/70 text-slate-600 transition-colors hover:border-slate-300 hover:bg-white/80 dark:border-slate-600 dark:text-slate-200"
@@ -458,20 +458,21 @@ export const AIChat: React.FC<AIChatProps> = ({
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 bg-red-50 px-4 py-2 text-sm text-red-700 dark:bg-red-900/40 dark:text-red-200">
+        <div className="flex flex-shrink-0 items-center gap-2 bg-red-50 px-4 py-2 text-sm text-red-700 dark:bg-red-900/40 dark:text-red-200">
           <ErrorOutline fontSize="small" />
           <span>{error}</span>
         </div>
       )}
 
       {contextWarning && (
-        <div className="bg-amber-50 px-4 py-2 text-xs text-amber-700 dark:bg-amber-900/40 dark:text-amber-200">
+        <div className="flex-shrink-0 bg-amber-50 px-4 py-2 text-xs text-amber-700 dark:bg-amber-900/40 dark:text-amber-200">
           You are approaching the context window limit. Consider starting a new conversation to avoid truncation.
         </div>
       )}
 
-      <div className="flex-1 overflow-hidden">
-        <div ref={listRef} className="flex h-full flex-col gap-4 overflow-y-auto px-4 py-6">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <div ref={listRef} className="flex-1 overflow-y-auto px-4 py-6">
+          <div className="flex flex-col gap-4">
           {!hasMessages ? (
             <div className="flex h-full w-full items-center justify-center">
               <div className="w-full max-w-lg rounded-3xl border border-dashed border-slate-200/80 bg-white/80 px-8 py-8 text-center shadow-inner dark:border-slate-700 dark:bg-slate-800/70">
@@ -523,80 +524,78 @@ export const AIChat: React.FC<AIChatProps> = ({
               );
             })
           )}
+          </div>
         </div>
       </div>
 
-      <div className="border-t border-white/40 px-4 py-4 dark:border-slate-700/70">
-        <div className="mx-auto flex max-w-3xl flex-col gap-3">
+      <div className="flex-shrink-0 border-t border-white/40 px-4 py-3 dark:border-slate-700/70">
+        <div className="mx-auto flex max-w-3xl flex-col gap-2">
           {(attachedImageIds.length > 0 || uploadedImagePreviews.size > 0) && (
-            <div className="flex flex-col gap-2 rounded-2xl border border-blue-200/50 bg-blue-50/50 p-3 dark:border-blue-800 dark:bg-blue-950/30">
-              <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">Attached images:</p>
-              <div className="flex flex-wrap gap-2">
-                {Array.from(uploadedImagePreviews.entries()).map(([imageId, preview]) => {
-                  const isUploading = uploadingImages.get(imageId);
-                  return (
-                    <div
-                      key={imageId}
-                      className="group relative inline-flex items-center gap-2 rounded-lg border border-blue-200 bg-white p-2 text-xs dark:border-blue-700 dark:bg-slate-800"
-                    >
-                      {isUploading ? (
-                        <div className="flex items-center gap-2">
-                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
-                          <span className="text-slate-500">Uploading...</span>
-                        </div>
-                      ) : (
-                        <>
-                          <img
-                            src={preview.url}
-                            alt={preview.name}
-                            className="h-8 w-8 rounded object-cover"
-                          />
-                          <span className="max-w-[120px] truncate text-slate-700 dark:text-slate-200">{preview.name}</span>
-                          <button
-                            onClick={() => {
-                              setAttachedImageIds((ids) => ids.filter((id) => id !== imageId));
-                              setUploadedImagePreviews((prev) => {
-                                const newMap = new Map(prev);
-                                const prevData = newMap.get(imageId);
-                                if (prevData) URL.revokeObjectURL(prevData.url);
-                                newMap.delete(imageId);
-                                return newMap;
-                              });
-                            }}
-                            className="text-slate-400 hover:text-red-500 dark:text-slate-500 dark:hover:text-red-400"
-                            aria-label="Remove image"
-                          >
-                            ×
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  );
-                })}
-                {attachedImageIds
-                  .filter((id) => !uploadedImagePreviews.has(id))
-                  .map((imageId) => {
-                    const image = availableImages.find((img) => img.id === imageId);
-                    return (
-                      <div
-                        key={imageId}
-                        className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white px-3 py-1 text-xs dark:border-blue-700 dark:bg-slate-800"
-                      >
-                        <span className="text-slate-700 dark:text-slate-200">{image?.title || `Image ${imageId}`}</span>
+            <div className="flex flex-wrap gap-1.5 rounded-xl border border-blue-200/50 bg-blue-50/50 p-1.5 dark:border-blue-800 dark:bg-blue-950/30">
+              {Array.from(uploadedImagePreviews.entries()).map(([imageId, preview]) => {
+                const isUploading = uploadingImages.get(imageId);
+                return (
+                  <div
+                    key={imageId}
+                    className="group relative inline-flex items-center gap-1 rounded-lg border border-blue-200 bg-white p-1 text-[10px] dark:border-blue-700 dark:bg-slate-800"
+                  >
+                    {isUploading ? (
+                      <div className="flex items-center gap-1 px-1.5">
+                        <div className="h-3 w-3 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+                        <span className="text-slate-500">...</span>
+                      </div>
+                    ) : (
+                      <>
+                        <img
+                          src={preview.url}
+                          alt={preview.name}
+                          className="h-6 w-6 rounded object-cover"
+                        />
+                        <span className="max-w-[80px] truncate text-slate-700 dark:text-slate-200">{preview.name}</span>
                         <button
-                          onClick={() => setAttachedImageIds((ids) => ids.filter((id) => id !== imageId))}
-                          className="text-slate-400 hover:text-red-500 dark:text-slate-500 dark:hover:text-red-400"
+                          onClick={() => {
+                            setAttachedImageIds((ids) => ids.filter((id) => id !== imageId));
+                            setUploadedImagePreviews((prev) => {
+                              const newMap = new Map(prev);
+                              const prevData = newMap.get(imageId);
+                              if (prevData) URL.revokeObjectURL(prevData.url);
+                              newMap.delete(imageId);
+                              return newMap;
+                            });
+                          }}
+                          className="ml-0.5 text-slate-400 hover:text-red-500 dark:text-slate-500 dark:hover:text-red-400"
                           aria-label="Remove image"
                         >
                           ×
                         </button>
-                      </div>
-                    );
-                  })}
-              </div>
+                      </>
+                    )}
+                  </div>
+                );
+              })}
+              {attachedImageIds
+                .filter((id) => !uploadedImagePreviews.has(id))
+                .map((imageId) => {
+                  const image = availableImages.find((img) => img.id === imageId);
+                  return (
+                    <div
+                      key={imageId}
+                      className="inline-flex items-center gap-1 rounded-lg border border-blue-200 bg-white px-2 py-0.5 text-[10px] dark:border-blue-700 dark:bg-slate-800"
+                    >
+                      <span className="max-w-[80px] truncate text-slate-700 dark:text-slate-200">{image?.title || `Img ${imageId}`}</span>
+                      <button
+                        onClick={() => setAttachedImageIds((ids) => ids.filter((id) => id !== imageId))}
+                        className="ml-0.5 text-slate-400 hover:text-red-500 dark:text-slate-500 dark:hover:text-red-400"
+                        aria-label="Remove image"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  );
+                })}
             </div>
           )}
-          <div className="relative flex items-center gap-3 rounded-3xl border border-slate-200/80 bg-white/85 px-4 py-3 shadow-inner transition focus-within:border-blue-400 dark:border-slate-700 dark:bg-slate-800/70">
+          <div className="relative flex items-center gap-2 rounded-3xl border border-slate-200/80 bg-white/85 px-3 py-2.5 shadow-inner transition focus-within:border-blue-400 dark:border-slate-700 dark:bg-slate-800/70">
             <input
               ref={imageInputRef}
               type="file"

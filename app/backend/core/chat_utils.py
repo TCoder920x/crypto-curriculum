@@ -188,3 +188,103 @@ def extract_conversation_title(first_message: str, max_length: int = 50) -> str:
     
     return title
 
+
+async def format_citations_in_response(
+    response_text: str,
+    db: Optional[Any] = None
+) -> str:
+    """
+    Replace OpenAI citation format with readable document names.
+    
+    OpenAI citations come in format: 【8:0+filename.txt】
+    This function replaces them with: [Document: "title"]
+    
+    Args:
+        response_text: Response text containing citations
+        db: Optional database session for document lookup
+    
+    Returns:
+        Response text with formatted citations
+    """
+    import re
+    from pathlib import Path
+    
+    if not response_text:
+        return response_text
+    
+    if not db:
+        logger.warning("format_citations_in_response called without database session")
+        return response_text
+    
+    citation_pattern = r'【(\d+:\d+)\+([^】]+)】'
+    matches = list(re.finditer(citation_pattern, response_text))
+    
+    if not matches:
+        return response_text
+    
+    logger.info(f"Found {len(matches)} citation(s) to format in response")
+    
+    from sqlalchemy import select
+    from app.backend.models.document import Document
+    
+    replacements = {}
+    
+    for match in matches:
+        citation_ref = match.group(1)
+        filename = match.group(2)
+        
+        if filename in replacements:
+            continue
+        
+        try:
+            filename_clean = filename.strip()
+            filename_base = Path(filename_clean).stem
+            filename_with_path = f"/{filename_clean}"
+            filename_in_storage = f"storage/documents/{filename_clean}"
+            
+            result = await db.execute(
+                select(Document)
+                .where(Document.is_deleted == False)
+                .where(
+                    (Document.filename == filename_clean) |
+                    (Document.filename.like(f"%{filename_base}%")) |
+                    (Document.storage_path.like(f"%{filename_clean}%")) |
+                    (Document.storage_path.like(f"%{filename_with_path}%")) |
+                    (Document.storage_path.like(f"%{filename_in_storage}%")) |
+                    (Document.storage_path.endswith(filename_clean))
+                )
+                .limit(1)
+            )
+            document = result.scalar_one_or_none()
+            
+            if document:
+                replacements[filename] = f'[Document: "{document.title}"]'
+                logger.info(f"Replaced citation {filename} with document title: {document.title}")
+            else:
+                display_name = filename_base if filename_base else filename_clean
+                replacements[filename] = f'[Document: "{display_name}"]'
+                logger.warning(f"Document not found for citation {filename}, using fallback: {display_name}")
+        except Exception as e:
+            logger.error(f"Error looking up citation {filename}: {e}", exc_info=True)
+            display_name = Path(filename).stem if filename else filename
+            replacements[filename] = f'[Document: "{display_name}"]'
+    
+    def replace_match(match):
+        filename = match.group(2)
+        replacement = replacements.get(filename, f'[Document: "{filename}"]')
+        return replacement
+    
+    formatted_text = re.sub(citation_pattern, replace_match, response_text)
+    
+    if formatted_text == response_text and len(matches) > 0:
+        logger.error("Citation pattern matched but text was not modified - forcing replacement")
+        def simple_replace(m):
+            fn = m.group(2)
+            return f'[Document: "{Path(fn).stem}"]'
+        formatted_text = re.sub(citation_pattern, simple_replace, response_text)
+    
+    if len(replacements) > 0:
+        logger.info(f"Formatted {len(replacements)} citation(s) in response")
+    
+    return formatted_text
+

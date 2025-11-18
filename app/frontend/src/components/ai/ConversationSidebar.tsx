@@ -19,7 +19,6 @@ import {
   Tooltip,
 } from '@mui/material';
 import {
-  Add,
   Delete,
   Edit,
   Chat as ChatIcon,
@@ -136,7 +135,7 @@ export const ConversationSidebar: React.FC<ConversationSidebarProps> = ({
       >
         {/* Header */}
         <Box sx={{ p: 2, borderBottom: 1, borderColor: 'rgba(148, 163, 184, 0.3)' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Typography 
               variant="body2" 
               sx={{ 
@@ -152,20 +151,6 @@ export const ConversationSidebar: React.FC<ConversationSidebarProps> = ({
               Conversations
             </Typography>
           </Box>
-          <Button
-            fullWidth
-            variant="outlined"
-            startIcon={<Add />}
-            onClick={onNewConversation}
-            size="small"
-            sx={{
-              mt: 1,
-              textTransform: 'none',
-              fontSize: '0.75rem',
-            }}
-          >
-            New Chat
-          </Button>
         </Box>
 
         {/* Conversations List */}

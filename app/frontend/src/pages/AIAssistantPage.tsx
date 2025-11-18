@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import { FileOpen, UploadFile } from '@mui/icons-material';
+import { FileOpen, UploadFile, ExpandMore, ExpandLess } from '@mui/icons-material';
 import { AIChat } from '../components/ai/AIChat';
 import { ConversationSidebar } from '../components/ai/ConversationSidebar';
 import { documentService, type ReferenceDocument, isImageDocument } from '../services/documentService';
@@ -37,6 +37,8 @@ export const AIAssistantPage: React.FC = () => {
   const [selectedConversationId, setSelectedConversationId] = useState<number | null>(
     locationState.conversationId ?? null
   );
+  const [isFileStorageExpanded, setIsFileStorageExpanded] = useState(true);
+  const [isConversationHistoryExpanded, setIsConversationHistoryExpanded] = useState(true);
 
   const loadDocuments = async () => {
     setIsLoadingDocs(true);
@@ -128,24 +130,27 @@ export const AIAssistantPage: React.FC = () => {
     return (
       <div
         key={doc.id}
-        className="rounded-2xl border border-white/30 bg-white/20 p-4 text-sm shadow-lg backdrop-blur-xl dark:border-slate-700 dark:bg-slate-800/60"
+        className="rounded-xl border border-white/30 bg-white/20 p-2.5 text-sm shadow-md backdrop-blur-xl dark:border-slate-700 dark:bg-slate-800/60"
       >
-        <p className="text-sm font-semibold text-slate-900 dark:text-white">{doc.title}</p>
-        <p className="mt-1 text-[11px] uppercase tracking-wide text-slate-500">
-          {doc.category === 'user-upload' ? 'User Upload' : doc.category}
-        </p>
-        <p className="mt-1 text-xs text-slate-500">Updated {new Date(doc.updated_at).toLocaleDateString()}</p>
-        <div className="mt-3 flex gap-2">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-xs font-semibold text-slate-900 dark:text-white">{doc.title}</p>
+            <p className="mt-0.5 text-[10px] uppercase tracking-wide text-slate-500">
+              {doc.category === 'user-upload' ? 'Upload' : doc.category}
+            </p>
+          </div>
+        </div>
+        <div className="mt-2 flex gap-1.5">
           <button
-            className="inline-flex items-center gap-2 rounded-full border border-slate-300/70 px-3 py-1 text-xs font-semibold text-slate-600 transition hover:bg-white/70 dark:border-slate-600 dark:text-slate-200"
+            className="inline-flex items-center gap-1 rounded-lg border border-slate-300/70 px-2 py-0.5 text-[10px] font-semibold text-slate-600 transition hover:bg-white/70 dark:border-slate-600 dark:text-slate-200"
             onClick={() => documentService.openDocumentInNewTab(doc.id)}
           >
-            <FileOpen fontSize="inherit" /> View
+            <FileOpen sx={{ fontSize: 12 }} /> View
           </button>
           {isImage && (
             <button
               className={`
-                inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold transition
+                inline-flex items-center gap-1 rounded-lg border px-2 py-0.5 text-[10px] font-semibold transition
                 ${
                   isAttached
                     ? 'border-blue-400 bg-blue-100 text-blue-700 dark:border-blue-600 dark:bg-blue-900/50 dark:text-blue-300'
@@ -160,7 +165,7 @@ export const AIAssistantPage: React.FC = () => {
                 }
               }}
             >
-              {isAttached ? '✓ Attached' : '+ Attach'}
+              {isAttached ? '✓' : '+'}
             </button>
           )}
         </div>
@@ -179,20 +184,26 @@ export const AIAssistantPage: React.FC = () => {
             Collect study guides, attach module notes, and explore AI answers with inline citations.
           </p>
         </div>
-        <div className="grid flex-1 grid-cols-1 gap-6 overflow-hidden md:grid-cols-3">
-          <div className="flex flex-col rounded-3xl border border-white/40 bg-white/65 p-4 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/60">
+        <div className="grid flex-1 min-h-0 grid-cols-1 gap-6 overflow-hidden md:grid-cols-3">
+          <div className="flex flex-col rounded-3xl border border-white/40 bg-white/65 p-3 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/60">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">File storage</p>
+              <button
+                onClick={() => setIsFileStorageExpanded(!isFileStorageExpanded)}
+                className="flex items-center gap-1.5 text-sm font-semibold text-slate-700 transition hover:text-slate-900 dark:text-slate-200 dark:hover:text-white"
+              >
+                {isFileStorageExpanded ? <ExpandLess sx={{ fontSize: 18 }} /> : <ExpandMore sx={{ fontSize: 18 }} />}
+                <span>File storage</span>
+              </button>
               <button
                 onClick={handleUploadClick}
                 disabled={isUploading}
                 className={`
-                  inline-flex items-center gap-1 rounded-full border border-slate-200/80 px-3 py-1 text-xs font-semibold 
+                  inline-flex items-center gap-1 rounded-full border border-slate-200/80 px-2.5 py-0.5 text-[11px] font-semibold 
                   transition hover:bg-white/80 dark:border-slate-700 dark:text-slate-300
                   ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}
                 `}
               >
-                <UploadFile fontSize="inherit" /> {isUploading ? 'Uploading...' : 'Upload'}
+                <UploadFile sx={{ fontSize: 14 }} /> {isUploading ? '...' : 'Upload'}
               </button>
             </div>
             <input
@@ -203,60 +214,75 @@ export const AIAssistantPage: React.FC = () => {
               className="hidden"
               disabled={isUploading}
             />
-            {docError && <p className="mt-3 text-xs text-red-500">{docError}</p>}
-            {uploadError && <p className="mt-3 text-xs text-red-500">{uploadError}</p>}
-            {isUploading && (
-              <div className="mt-3">
-                <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
-                  <div
-                    className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-300"
-                    style={{ width: `${uploadProgress}%` }}
+            {isFileStorageExpanded && (
+              <>
+                {docError && <p className="mt-2 text-[11px] text-red-500">{docError}</p>}
+                {uploadError && <p className="mt-2 text-[11px] text-red-500">{uploadError}</p>}
+                {isUploading && (
+                  <div className="mt-2 flex items-center gap-2">
+                    <div className="h-1 flex-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                      <div
+                        className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-300"
+                        style={{ width: `${uploadProgress}%` }}
+                      />
+                    </div>
+                    <span className="text-[10px] text-slate-500">{uploadProgress}%</span>
+                  </div>
+                )}
+                <div className="mt-3 max-h-[180px] overflow-y-auto pr-1">
+                  {isLoadingDocs ? (
+                    <p className="text-[11px] text-slate-500">Loading…</p>
+                  ) : (
+                    <TransitionGroup component={null}>
+                      {[{ title: 'Standard Library', data: groupedDocs.standard }, { title: 'User Uploads', data: groupedDocs.uploads }].map(
+                        (section) => (
+                          <CSSTransition key={section.title} timeout={250} classNames="fade">
+                            <Fragment>
+                              <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+                                {section.title}
+                              </p>
+                              <div className="mb-3 space-y-2">
+                                {section.data.length === 0 ? (
+                                  <p className="text-[11px] text-slate-400">No documents yet.</p>
+                                ) : (
+                                  section.data.map(renderDocumentCard)
+                                )}
+                              </div>
+                            </Fragment>
+                          </CSSTransition>
+                        ),
+                      )}
+                    </TransitionGroup>
+                  )}
+                </div>
+              </>
+            )}
+            <div className={`${isFileStorageExpanded ? 'mt-4' : 'mt-3'} border-t border-slate-200/50 pt-3 dark:border-slate-700`}>
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={() => setIsConversationHistoryExpanded(!isConversationHistoryExpanded)}
+                  className="flex items-center gap-1.5 text-sm font-semibold text-slate-700 transition hover:text-slate-900 dark:text-slate-200 dark:hover:text-white"
+                >
+                  {isConversationHistoryExpanded ? <ExpandLess sx={{ fontSize: 18 }} /> : <ExpandMore sx={{ fontSize: 18 }} />}
+                  <span>Conversation history</span>
+                </button>
+              </div>
+              {isConversationHistoryExpanded && (
+                <div className="mt-3 flex h-[400px] flex-col overflow-hidden">
+                  <ConversationSidebar
+                    selectedConversationId={selectedConversationId}
+                    onSelectConversation={(id) => {
+                      setSelectedConversationId(id);
+                    }}
+                    onNewConversation={() => {
+                      setSelectedConversationId(null);
+                    }}
                   />
                 </div>
-                <p className="mt-1 text-xs text-slate-500">{uploadProgress}%</p>
-              </div>
-            )}
-            <div className="mt-4 max-h-[200px] overflow-y-auto pr-1">
-              {isLoadingDocs ? (
-                <p className="text-xs text-slate-500">Loading documents…</p>
-              ) : (
-                <TransitionGroup component={null}>
-                  {[{ title: 'Standard Library', data: groupedDocs.standard }, { title: 'User Uploads', data: groupedDocs.uploads }].map(
-                    (section) => (
-                      <CSSTransition key={section.title} timeout={250} classNames="fade">
-                        <Fragment>
-                          <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                            {section.title}
-                          </p>
-                          <div className="mb-4 space-y-3">
-                            {section.data.length === 0 ? (
-                              <p className="text-xs text-slate-400">No documents yet.</p>
-                            ) : (
-                              section.data.map(renderDocumentCard)
-                            )}
-                          </div>
-                        </Fragment>
-                      </CSSTransition>
-                    ),
-                  )}
-                </TransitionGroup>
               )}
             </div>
-            <div className="mt-6 border-t border-slate-200/50 pt-4 dark:border-slate-700">
-              <div className="flex h-[400px] flex-col overflow-hidden">
-                <ConversationSidebar
-                  selectedConversationId={selectedConversationId}
-                  onSelectConversation={(id) => {
-                    setSelectedConversationId(id);
-                  }}
-                  onNewConversation={() => {
-                    setSelectedConversationId(null);
-                  }}
-                />
-              </div>
-            </div>
           </div>
-          <div className="md:col-span-2">
+          <div className="md:col-span-2 min-h-0">
             <AIChat
               className="h-full"
               initialQuery={locationState.initialQuery}
