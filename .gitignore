@@ -78,4 +78,8 @@ app/backend/.coverage
 # package-lock.json
 # yarn.lock
 # poetry.lock
-
+# Project specific
+unnoficial-plans/
+scripts/
+business-legal/
+notes.md
