@@ -51,6 +51,7 @@ Thumbs.db
 *.tmp
 *.temp
 .cache/
+.tmp.driveupload
 
 # Frontend specific
 app/frontend/.next/
