@@ -5,6 +5,7 @@ React + TypeScript frontend with Vite, Material-UI, and Tailwind CSS.
 ## Setup Instructions
 
 ### 1. Prerequisites
+
 - Node.js 18+
 - npm or yarn
 
@@ -17,11 +18,15 @@ npm install
 ### 3. Environment Setup
 
 1. Copy environment template:
+
 ```bash
 cp ../../docs/templates/frontend.env.example .env.local
 ```
 
+_(Note: the `docs/` directory is maintained locally for this repository)_
+
 2. Edit `.env.local` if needed:
+
 ```env
 VITE_API_URL=http://localhost:9000
 ```
@@ -77,6 +82,7 @@ app/frontend/
 ## Design System
 
 The application uses Apple's Liquid Glass UI design with:
+
 - Translucent glass surfaces
 - Adaptive materials
 - Fluid motion animations
@@ -88,11 +94,10 @@ See `src/index.css` for glass surface CSS classes.
 
 ### Adding Components
 
-Follow the patterns in `cursor/rules/frontendComponentAgent.mdc`:
+Follow the patterns in `../../.cursor/rules/frontendComponentAgent.mdc`:
+
 - Use TypeScript strict mode
 - Functional components with hooks
 - MUI + Tailwind for styling
 - Accessibility first
 - Responsive design
-
-
