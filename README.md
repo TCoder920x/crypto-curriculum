@@ -9,6 +9,7 @@ This project provides a comprehensive, full-stack educational platform for crypt
 ## 📚 Curriculum Structure
 
 ### Part 1: The "User" Track (Foundations)
+
 **Goal**: Create an informed, safe, and competent user of Web3
 
 - **Module 1**: Blockchain Technology (2h)
@@ -20,6 +21,7 @@ This project provides a comprehensive, full-stack educational platform for crypt
 - **Module 7**: Advanced Concepts Overview (2.5h)
 
 ### Part 2: The "Power User" / Analyst Track
+
 **Goal**: Bridge the gap from using the chain to analyzing it
 
 - **Module 8**: Practical On-Chain Analysis (3h)
@@ -27,6 +29,7 @@ This project provides a comprehensive, full-stack educational platform for crypt
 - **Module 10**: Advanced DeFi Strategies (3h)
 
 ### Part 3: The "Developer" Track
+
 **Goal**: Build technical skills for smart contracts and dApps
 
 - **Module 11**: Development & Programming Prerequisites (3h)
@@ -34,6 +37,7 @@ This project provides a comprehensive, full-stack educational platform for crypt
 - **Module 13**: dApp Development & Tooling (4h)
 
 ### Part 4: The "Architect" / Builder Track
+
 **Goal**: Use developer skills to build complex, novel systems
 
 - **Module 14**: Creating a Fungible Token & ICO (4h)
@@ -44,6 +48,7 @@ This project provides a comprehensive, full-stack educational platform for crypt
 ## 🏗️ Technical Architecture
 
 ### Frontend Stack
+
 - **Framework**: React 18.3 with TypeScript
 - **Build Tool**: Vite 5.4
 - **UI Library**: Material-UI (MUI) v7
@@ -54,7 +59,10 @@ This project provides a comprehensive, full-stack educational platform for crypt
 - **API Client**: Axios (port 9000)
 - **State Management**: React Query (TanStack Query)
 
+> **Note on Repository Contents**: This public repository contains the core application source code for the platform's operation. Curriculum content, detailed design assets, and administrative documentation are maintained in the primary development environment to keep the public codebase focused and secure.
+
 ### Backend Stack
+
 - **Framework**: FastAPI (Python 3.11+)
 - **ORM**: SQLAlchemy 2.0+ (async)
 - **Database**: PostgreSQL 15+
@@ -63,6 +71,7 @@ This project provides a comprehensive, full-stack educational platform for crypt
 - **Testing**: Pytest
 
 ### AI Trading Bot Framework
+
 - **Architecture**: Custom LLM-agnostic agent system
 - **Supported LLMs**: OpenAI, Anthropic Claude, Ollama (local)
 - **Features**: Technical indicators, backtesting, risk management
@@ -73,6 +82,7 @@ This project provides a comprehensive, full-stack educational platform for crypt
 This project uses a specialized AI agent framework in Cursor for efficient development:
 
 ### Specialized Agents
+
 1. **Master Orchestrator** - Coordinates all development
 2. **Frontend Component Agent** - React + TypeScript + MUI
 3. **Backend API Agent** - FastAPI + SQLAlchemy
@@ -88,7 +98,7 @@ crypto-curriculum/
 ├── .gitignore                    # Git ignore rules (API keys, secrets, etc.)
 ├── README.md                     # This file - Project overview
 │
-├── curriculum/                   # 📚 All curriculum content
+├── curriculum/                   # 📚 Curriculum content (Local Only)
 │   ├── code-examples/           # Reference code for teaching
 │   │   └── module-17/           # AI agent examples (Python)
 │   ├── blockchain curriculum outline.md
@@ -132,7 +142,7 @@ crypto-curriculum/
 │       ├── requirements.txt
 │       └── README.md            # Backend-specific docs
 │
-├── .cursor/                      # 🤖 AI agent configurations (Cursor's standard location)
+├── .cursor/                      # 🤖 AI agent configurations (Local Only)
 │   └── rules/                    # Agent rule files
 │       ├── masterOrchestrator.mdc
 │       ├── frontendComponentAgent.mdc
@@ -140,11 +150,11 @@ crypto-curriculum/
 │       ├── databaseSchemaAgent.mdc
 │       └── tradingBotAgent.mdc
 │
-├── UI-examples/                  # 🎨 Design reference for frontend
+├── UI-examples/                  # 🎨 Design reference (Local Only)
 │   ├── part 1 webpage example.html (DESIGN REFERENCE - mirror this)
 │   └── part 1 infographic example.html
 │
-├── docs/                         # 📖 Project documentation
+├── docs/                         # 📖 Project documentation (Local Only)
 │   ├── api/
 │   │   └── endpoints.md          # API endpoint reference
 │   ├── architecture/
@@ -164,7 +174,7 @@ crypto-curriculum/
 │   │   └── feature_request.md    # Feature request template
 │   └── pull_request_template.md  # PR template
 │
-└── scripts/                      # 🔧 Automation scripts
+└── scripts/                      # 🔧 Automation scripts (Local Only)
     └── README.md                 # Script guidelines
 ```
 
@@ -172,23 +182,24 @@ crypto-curriculum/
 
 **Where to put files:**
 
-| File Type | Location | Example |
-|-----------|----------|---------|
-| Curriculum content | `curriculum/` | Markdown lesson files |
-| Teaching code examples | `curriculum/code-examples/` | Python examples for Module 17 |
-| Application source code | `app/frontend/` or `app/backend/` | React components, API routes |
-| Component-specific docs | Component's `README.md` | `app/frontend/README.md` |
-| Project-wide documentation | `docs/` | API specs, architecture, checklists |
-| Deployment guides | `docs/deployment/` | Local development & Google Cloud setup |
-| Automation scripts | `scripts/` | Setup, deployment, database scripts |
-| AI agent configurations | `cursor/rules/` | Agent rule files (.mdc) |
-| UI design references | `UI-examples/` | **HTML examples to mirror** |
+| File Type                  | Location                          | Example                                |
+| -------------------------- | --------------------------------- | -------------------------------------- |
+| Curriculum content         | `curriculum/`                     | Markdown lesson files                  |
+| Teaching code examples     | `curriculum/code-examples/`       | Python examples for Module 17          |
+| Application source code    | `app/frontend/` or `app/backend/` | React components, API routes           |
+| Component-specific docs    | Component's `README.md`           | `app/frontend/README.md`               |
+| Project-wide documentation | `docs/`                           | API specs, architecture, checklists    |
+| Deployment guides          | `docs/deployment/`                | Local development & Google Cloud setup |
+| Automation scripts         | `scripts/`                        | Setup, deployment, database scripts    |
+| AI agent configurations    | `cursor/rules/`                   | Agent rule files (.mdc)                |
+| UI design references       | `UI-examples/`                    | **HTML examples to mirror**            |
 
 **Note:** READMEs can stay in their relevant directories (e.g., `app/frontend/README.md`), but comprehensive documentation belongs in `docs/`.
 
 ## 🎓 Key Features
 
 ### For Students
+
 - **Progressive Learning**: Four tracks from beginner to architect
 - **Interactive Content**: Engaging lessons with visualizations
 - **Hands-on Practice**: Coding exercises and real projects
@@ -197,12 +208,14 @@ crypto-curriculum/
 - **AI Trading Bot**: Build and customize your own trading bot
 
 ### For Instructors
+
 - **Admin Dashboard**: Manage students and content
 - **Progress Monitoring**: Track student completion and scores
 - **Content Management**: Update curriculum materials
 - **Analytics**: View engagement and performance metrics
 
 ### Technical Highlights
+
 - **Full TypeScript**: Type-safe frontend and API contracts
 - **Async Architecture**: Non-blocking operations throughout
 - **LLM-Agnostic Bot**: Works with any LLM provider
@@ -213,6 +226,7 @@ crypto-curriculum/
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - Node.js 18+ and npm/yarn
 - Python 3.11+
 - PostgreSQL 15+
@@ -221,6 +235,7 @@ crypto-curriculum/
 ### Installation
 
 #### Frontend Setup
+
 ```bash
 cd app/frontend
 npm install
@@ -228,6 +243,7 @@ npm run dev
 ```
 
 #### Backend Setup
+
 ```bash
 cd app/backend
 python -m venv venv
@@ -238,6 +254,7 @@ python main.py
 ```
 
 #### Database Setup
+
 ```bash
 # Create PostgreSQL database
 createdb crypto_curriculum
@@ -267,6 +284,7 @@ See [`curriculum/blockchain curriculum part 1.md`](curriculum/blockchain curricu
 ## 🧪 Testing
 
 ### Frontend Tests
+
 ```bash
 cd app/frontend
 npm run test
@@ -274,6 +292,7 @@ npm run test:coverage
 ```
 
 ### Backend Tests
+
 ```bash
 cd app/backend
 pytest
@@ -281,6 +300,7 @@ pytest --cov=app
 ```
 
 ### E2E Tests
+
 ```bash
 npm run test:e2e
 ```
@@ -301,10 +321,12 @@ docker-compose logs -f
 ## 📚 Documentation Quick Links
 
 ### Getting Started
+
 - [Project Scope](docs/PROJECT_SCOPE.md) - Application purpose and scope
 - [Development Workflow](docs/guides/development-workflow.md) - Git workflow and best practices
 
 ### Architecture & Design
+
 - [Database Schema](docs/architecture/database-schema.md) - Complete database design (16 tables) and ERD
 - [Educational Framework](docs/architecture/educational-framework.md) - Multi-instructor/student pedagogy and features
 - [Component Hierarchy](docs/architecture/component-hierarchy.md) - React component structure
@@ -312,19 +334,23 @@ docker-compose logs -f
 - [Development Checklist](docs/DEVELOPMENT_CHECKLIST.md) - Complete development plan
 
 ### Configuration
+
 - [Frontend .env Template](docs/templates/frontend.env.example) - Frontend environment variables
 - [Backend .env Template](docs/templates/backend.env.example) - Backend environment variables
 
 ### Deployment
+
 - [Local Development Guide](docs/deployment/local-development.md) - Phase 2 local setup
 - [Google Cloud Setup](docs/deployment/google-cloud-setup.md) - Phase 3 deployment
 - [Database Migrations](docs/deployment/database-migrations.md) - Alembic workflow
 
 ### Curriculum
+
 - [Curriculum Outline](curriculum/blockchain%20curriculum%20outline.md) - Complete course structure
 - [Module 17 Code Examples](curriculum/code-examples/module-17/) - AI trading bot examples
 
 ### AI Agent System
+
 - [AI Agent System Guide](docs/guides/ai-agent-system.md) - How to use the development agents
 
 ---
@@ -333,9 +359,10 @@ docker-compose logs -f
 
 This project is developed for Universal Tech Movement in Austin, TX.
 
-**Repository:** https://github.com/TCoder920/crypto-curriculum
+**Repository:** https://github.com/TCoder920x/crypto-curriculum
 
 **Workflow:**
+
 1. Fork the repository
 2. Create a feature branch from `development`
 3. Make your changes
