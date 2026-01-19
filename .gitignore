@@ -64,6 +64,7 @@ app/frontend/build/
 app/backend/.pytest_cache/
 app/backend/htmlcov/
 app/backend/.coverage
+app/backend/storage/
 
 # API keys and secrets (CRITICAL - NEVER COMMIT)
 **/config/secrets.yaml
